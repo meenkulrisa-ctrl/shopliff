@@ -176,5 +176,108 @@ function buildForm(){
   const rows=items.map(([id,q])=>{const p=PRODUCTS.find(x=>x.id===id);return`<div class="order-row"><span>${p.emoji} ${p.name} ×${q}</span><span>฿${(p.price*q).toLocaleString()}</span></div>`;}).join('');
   const avatar=lineUser.pictureUrl?`<img src="${lineUser.pictureUrl}" onerror="this.style.display='none'" style="width:36px;height:36px;border-radius:50%;border:2px solid #1D9E75">`:`<div style="width:36px;height:36px;border-radius:50%;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:18px">👤</div>`;
   return`
-    <div class
-
+    <div class="modal-title">กรอกข้อมูลจัดส่ง</div>
+    <div class="modal-sub">ข้อมูลจะถูกบันทึกพร้อม LINE User ID</div>
+    <div class="user-info-box">
+      ${avatar}
+      <div class="user-info-detail">
+        <strong>${lineUser.displayName}</strong>
+        <span>LINE ID: ${lineUser.userId?lineUser.userId.substring(0,16)+'..':'–'}</span>
+      </div>
+    </div>
+    <div class="order-box">
+      <h3>สรุปรายการ</h3>${rows}
+      <div class="order-total"><span>รวม</span><span>฿${total.toLocaleString()}</span></div>
+    </div>
+    <div class="field"><label>ชื่อ-นามสกุล</label><input id="f-name" placeholder="กรอกชื่อ-นามสกุล"/></div>
+    <div class="field"><label>เบอร์โทรศัพท์</label><input id="f-phone" placeholder="0xx-xxx-xxxx" type="tel"/></div>
+    <div class="field"><label>ที่อยู่จัดส่ง</label><textarea id="f-addr" placeholder="บ้านเลขที่ ถนน ตำบล อำเภอ จังหวัด รหัสไปรษณีย์"></textarea></div>
+    <div class="field"><label>หมายเหตุ</label><input id="f-note" placeholder="เช่น สี / ขนาด / ข้อความพิเศษ"/></div>
+    <button class="btn-confirm" onclick="submitOrder()">✓ ยืนยันการสั่งซื้อ</button>
+    <button class="btn-cancel" onclick="closeModal()">ยกเลิก</button>`;
+}
+
+async function submitOrder(){
+  const name=document.getElementById('f-name').value.trim();
+  const phone=document.getElementById('f-phone').value.trim();
+  const addr=document.getElementById('f-addr').value.trim();
+  const note=document.getElementById('f-note').value.trim();
+  if(!name||!phone||!addr){alert('กรุณากรอกข้อมูลให้ครบ');return;}
+  
+  const btn=document.querySelector('.btn-confirm');
+  btn.textContent='กำลังบันทึก...';btn.disabled=true;
+  
+  const items=Object.entries(cart).filter(([,q])=>q>0);
+  const total=items.reduce((s,[id,q])=>{const p=PRODUCTS.find(x=>x.id===id);return s+(p?p.price*q:0);},0);
+  const orderRef='ORD-'+Date.now().toString(36).toUpperCase();
+  
+  const payload={
+    orderId:orderRef,
+    lineUserId:lineUser.userId,
+    lineDisplayName:lineUser.displayName,
+    linePictureUrl:lineUser.pictureUrl,
+    name,phone,address:addr,note,
+    items:JSON.stringify(items.map(([id,q])=>{const p=PRODUCTS.find(x=>x.id===id);return{id,name:p.name,qty:q,price:p.price,subtotal:p.price*q};})),
+    total,
+    timestamp:new Date().toISOString()
+  };
+  
+  try{
+    var query = new URLSearchParams(payload).toString();
+    const response = await fetch(`${scriptUrl}?${query}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'text/plain;charset=utf-8',
+      }
+    });
+    
+    console.log("success:", response);
+    
+    if(response.ok){
+      const result = await response.json();
+      console.log('✅ Order sent successfully:', result);
+      
+      if(result.status === 'success'){
+        showSuccess(orderRef);
+      } else {
+        alert('❌ เกิดข้อผิดพลาด: ' + result.message);
+        btn.textContent='✓ ยืนยันการสั่งซื้อ';
+        btn.disabled=false;
+      }
+    } else {
+      alert('❌ Error: ' + response.status);
+      btn.textContent='✓ ยืนยันการสั่งซื้อ';
+      btn.disabled=false;
+    }
+  }
+  catch(err){
+    console.log("Error:" + err);
+    alert('❌ เกิดข้อผิดพลาด: ' + err.message);
+    btn.textContent='✓ ยืนยันการสั่งซื้อ';
+    btn.disabled=false;
+  }
+}
+
+function showSuccess(orderRef){
+  cart={};
+  document.getElementById('cart-summary').textContent='ยังไม่มีสินค้า';
+  document.getElementById('cart-total').textContent='';
+  document.getElementById('btn-order').disabled=true;
+  document.getElementById('modal-body').innerHTML=`
+    <div class="success-screen">
+      <div class="success-icon">✅</div>
+      <h2>สั่งซื้อสำเร็จ!</h2>
+      <p>ขอบคุณ <strong>${lineUser.displayName}</strong>
+เราจะจัดส่งให้โดยเร็วที่สุด</p>
+      <div class="ref-code">เลขออเดอร์: ${orderRef}</div>
+      <p style="font-size:11px;color:var(--muted)">บันทึก LINE User ID เรียบร้อย</p>
+      <button class="btn-confirm" onclick="closeModal()">ปิด</button>
+    </div>`;
+}
+
+renderProducts();
+initLiff();
+</script>
+
+</body>
+</html>
