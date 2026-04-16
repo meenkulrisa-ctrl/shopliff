@@ -1,4 +1,3 @@
-
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600&family=Prompt:wght@500;600&display=swap');
   *{box-sizing:border-box;margin:0;padding:0}
@@ -105,12 +104,10 @@ const PRODUCTS=[
 
 let cart={};
 let lineUser={userId:null,displayName:'ไม่ทราบชื่อ',pictureUrl:null};
-let scriptUrl=localStorage.getItem('gas_url')||'';
-if(scriptUrl)document.getElementById('script-url').value=scriptUrl;
+const scriptUrl = 'https://script.google.com/macros/s/AKfycbwY_rj3E9LuC6wYaGTw5YFIBWB5_8LC62aa-e2GEM_09hK26NDiSoAdnPGnkffKK7Mx/exec';
 
 function saveUrl(){
-  scriptUrl=document.getElementById('script-url').value.trim();
-  localStorage.setItem('gas_url',scriptUrl);
+  localStorage.setItem('gas_url', scriptUrl);
 }
 
 // LIFF Init
@@ -231,7 +228,8 @@ async function submitOrder(){
     <div class="success-screen">
       <div class="success-icon">✅</div>
       <h2>สั่งซื้อสำเร็จ!</h2>
-      <p>ขอบคุณ <strong>${lineUser.displayName}</strong><br>เราจะจัดส่งให้โดยเร็วที่สุด</p>
+      <p>ขอบคุณ <strong>${lineUser.displayName}</strong>
+เราจะจัดส่งให้โดยเร็วที่สุด</p>
       <div class="ref-code">เลขออเดอร์: ${orderRef}</div>
       <p style="font-size:11px;color:var(--muted)">บันทึก LINE User ID เรียบร้อย</p>
       <button class="btn-confirm" onclick="closeModal()">ปิด</button>
