@@ -66,16 +66,6 @@
     </div>
   </div>
 
-  <div class="status-bar">
-    <div style="font-size:11px;color:var(--muted)">📊 เชื่อมต่อ Google Sheets</div>
-    <div id="liff-status" class="liff-badge">⏳ ตรวจสอบ LIFF...</div>
-  </div>
-
-  <div style="padding:8px 10px 0;display:flex;gap:6px">
-    <input id="script-url" placeholder="Google Apps Script URL..." style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:11px;font-family:'Sarabun',sans-serif;background:#fff;outline:none">
-    <button onclick="saveUrl()" style="padding:7px 10px;background:var(--primary);color:#fff;border:none;border-radius:7px;font-size:11px;cursor:pointer;font-family:'Sarabun',sans-serif">บันทึก</button>
-  </div>
-
   <div class="products-grid" id="grid"></div>
 
   <div class="cart-bar">
@@ -105,7 +95,7 @@ const PRODUCTS=[
 
 let cart={};
 let lineUser={userId:null,displayName:'ไม่ทราบชื่อ',pictureUrl:null};
-let scriptUrl=localStorage.getItem('gas_url')||'';
+let scriptUrl = 'https://script.google.com/macros/s/AKfycbwTXaJUToMbgmxfmXZliZ6Jt5q5wDezIKigUhc-ShawJcbvzhGMocMt0IDfm_wxovor/exec';
 if(scriptUrl)document.getElementById('script-url').value=scriptUrl;
 
 function saveUrl(){
