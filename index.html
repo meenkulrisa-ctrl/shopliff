@@ -57,6 +57,15 @@
   .success-icon{font-size:44px;margin-bottom:10px}
   .success-screen h2{font-family:'Prompt',sans-serif;font-size:17px;color:var(--primary);margin-bottom:6px}
   .ref-code{background:#E1F5EE;border-radius:8px;padding:9px;margin:10px 0;font-size:12px;color:#0F6E56;font-weight:600}
+  .qr-section{text-align:center;margin:20px 0;padding:20px;background:#f0faf6;border-radius:12px}
+  .qr-section h3{font-family:'Prompt',sans-serif;font-size:13px;color:var(--primary);margin-bottom:12px;font-weight:600}
+  .qr-code-box{background:#fff;border:2px solid #1D9E75;border-radius:10px;padding:15px;display:inline-block;margin:10px 0}
+  .qr-code-box img{max-width:200px;height:auto}
+  .qr-amount{font-size:14px;color:var(--primary);font-weight:600;margin:10px 0}
+  .btn-scan{width:100%;padding:12px;background:#0066FF;color:#fff;border:none;border-radius:10px;font-size:13px;font-family:'Sarabun',sans-serif;font-weight:600;cursor:pointer;margin-top:10px}
+  .btn-scan:hover{background:#0052CC}
+  .btn-paid{width:100%;padding:12px;background:#28A745;color:#fff;border:none;border-radius:10px;font-size:13px;font-family:'Sarabun',sans-serif;font-weight:600;cursor:pointer;margin-top:10px}
+  .btn-paid:hover{background:#218838}
 </style>
 </head>
 <body>
@@ -93,6 +102,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@line/liff@2.22.3/dist/liff.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 const LIFF_ID = '2009812734-KondoBJ0';
 const PRODUCTS=[
@@ -107,6 +117,9 @@ const PRODUCTS=[
 let cart={};
 let lineUser={userId:null,displayName:'ไม่ทราบชื่อ',pictureUrl:null};
 const scriptUrl = 'https://script.google.com/macros/s/AKfycbyUn8-kIA3N1ydfP9divXknOJfDSqv0qegUZNwT5cdJi4ljcIVE0FPkxG-R5HqKpGAa/exec';
+
+// PromptPay QR Code (เปลี่ยนเบอร์ของคุณ)
+const PROMPTPAY_ID = '0832707590'; // เบอร์โทรศัพท์หรือ ID บัญชีธนาคาร
 
 async function initLiff(){
   const statusEl=document.getElementById('liff-status');
@@ -128,10 +141,8 @@ async function initLiff(){
       ${lineUser.pictureUrl?`<img src="${lineUser.pictureUrl}" class="user-avatar" onerror="this.style.display='none'">`:'<span style="font-size:14px">👤</span>'}
       <span class="user-name-small">${lineUser.displayName}</span>`;
   }catch(err){
-    lineUser={userId:'DEMO-'+Math.random().toString(36).substr(2,6).toUpperCase(),displayName:'ทดสอบระบบ',pictureUrl:null};
-    statusEl.innerHTML='⚠️ Demo Mode (ไม่ใช่ LINE)';
-    statusEl.style.background='#FAEEDA';statusEl.style.color='#BA7517';
-    pillEl.innerHTML=`<span style="font-size:14px">👤</span><span class="user-name-small">Demo Mode</span>`;
+    console.log('LIFF Error:', err);
+    alert('❌ ต้องเปิดผ่าน LINE เท่านั้น');
   }
 }
 
@@ -152,7 +163,7 @@ function addCart(id){
   cart[id]=(cart[id]||0)+1;
   const count=Object.values(cart).reduce((a,b)=>a+b,0);
   const total=Object.entries(cart).reduce((s,[id,q])=>{const p=PRODUCTS.find(x=>x.id===id);return s+(p?p.price*q:0);},0);
-  document.getElementById('cart-summary').textContent=`${count} รายการ`;
+  document.getElementById('cart-summary').textContent=`${count} รายกา��`;
   document.getElementById('cart-total').textContent=`฿${total.toLocaleString()}`;
   document.getElementById('btn-order').disabled=false;
 }
@@ -238,7 +249,7 @@ async function submitOrder(){
       console.log('✅ Order sent successfully:', result);
       
       if(result.status === 'success'){
-        showSuccess(orderRef);
+        showPayment(orderRef, total);
       } else {
         alert('❌ เกิดข้อผิดพลาด: ' + result.message);
         btn.textContent='✓ ยืนยันการสั่งซื้อ';
@@ -258,21 +269,66 @@ async function submitOrder(){
   }
 }
 
-function showSuccess(orderRef){
+function showPayment(orderRef, total){
+  const qrId = 'qrcode-' + Date.now();
+  
+  // สร้าง PromptPay QR Code
+  const qrUrl = generatePromptPayQR(PROMPTPAY_ID, total);
+  
+  document.getElementById('modal-body').innerHTML=`
+    <div class="success-screen">
+      <div class="success-icon">💳</div>
+      <h2>สั่งซื้อสำเร็จ!</h2>
+      <p>เลขออเดอร์: <strong>${orderRef}</strong></p>
+      
+      <div class="qr-section">
+        <h3>📱 สแกน QR Code เพื่อชำระเงิน</h3>
+        <div class="qr-amount">฿${total.toLocaleString()}</div>
+        <div class="qr-code-box">
+          <img src="${qrUrl}" alt="PromptPay QR Code" style="width:180px;height:180px">
+        </div>
+        <p style="font-size:11px;color:var(--muted);margin-top:10px">หรือโอนเงินไปยัง ${PROMPTPAY_ID}</p>
+        
+        <button class="btn-scan" onclick="scanQR()">📸 สแกน QR Code</button>
+        <button class="btn-paid" onclick="confirmPayment('${orderRef}')">✓ ชำระเงินแล้ว</button>
+      </div>
+      
+      <p style="font-size:11px;color:var(--muted);margin-top:15px">เราจะจัดส่งให้โดยเร็วที่สุด</p>
+      <button class="btn-confirm" onclick="closeModal()">ปิด</button>
+    </div>`;
+}
+
+function generatePromptPayQR(id, amount){
+  // ใช้ API สำหรับสร้าง PromptPay QR Code
+  // แนะนำให้ใช้บริการ Thai QR Code ของ ธนาคารแห่งประเทศไทย
+  const qrText = `00020126360014th.ac.crypto0007A00000215${id}520441115303764540${amount.toString().padStart(12, '0')}5802TH5912ShopEasy6304`;
+  
+  // ใช้ qr-server API แทน
+  return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrText)}`;
+}
+
+async function scanQR(){
+  if(!liff.isInClient()){
+    alert('⚠️ ฟีเจอร์นี้ใช้ได้เฉพาะใน LINE เท่านั้น');
+    return;
+  }
+  
+  try{
+    const result = await liff.scanCode();
+    console.log('QR Code Result:', result.value);
+    alert('✅ สแกนสำเร็จ: ' + result.value);
+  }catch(err){
+    console.log('Scan Error:', err);
+  }
+}
+
+function confirmPayment(orderRef){
+  alert(`✅ ขอบคุณที่ชำระเงินแล้ว!\n\nเลขออเดอร์: ${orderRef}\n\nเราจะจัดส่งให้ในเร็วที่สุด`);
+  closeModal();
   cart={};
   document.getElementById('cart-summary').textContent='ยังไม่มีสินค้า';
   document.getElementById('cart-total').textContent='';
   document.getElementById('btn-order').disabled=true;
-  document.getElementById('modal-body').innerHTML=`
-    <div class="success-screen">
-      <div class="success-icon">✅</div>
-      <h2>สั่งซื้อสำเร็จ!</h2>
-      <p>ขอบคุณ <strong>${lineUser.displayName}</strong>
-เราจะจัดส่งให้โดยเร็วที่สุด</p>
-      <div class="ref-code">เลขออเดอร์: ${orderRef}</div>
-      <p style="font-size:11px;color:var(--muted)">บันทึก LINE User ID เรียบร้อย</p>
-      <button class="btn-confirm" onclick="closeModal()">ปิด</button>
-    </div>`;
 }
 
 renderProducts();
