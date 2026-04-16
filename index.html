@@ -96,7 +96,7 @@
 <script>
 const LIFF_ID = '2009812734-KondoBJ0';
 const PRODUCTS=[
-  {id:'P001',name:'เสื้อยืด Basic',price:299,emoji:'���',stock:50},
+  {id:'P001',name:'เสื้อยืด Basic',price:299,emoji:'👕',stock:50},
   {id:'P002',name:'กางเกงยีนส์',price:899,emoji:'👖',stock:20},
   {id:'P003',name:'รองเท้าผ้าใบ',price:1290,emoji:'👟',stock:15},
   {id:'P004',name:'กระเป๋าสะพาย',price:590,emoji:'👜',stock:30},
@@ -106,7 +106,7 @@ const PRODUCTS=[
 
 let cart={};
 let lineUser={userId:null,displayName:'ไม่ทราบชื่อ',pictureUrl:null};
-const scriptUrl = 'https://script.google.com/macros/s/AKfycbwRpi2gnrwl-XgEbGhIB9s2Hl91Cq9gjK6bEPPmR91ZGBahSGvPbuf5y93quAmBwsp5/exec';
+const scriptUrl = 'https://script.google.com/macros/s/AKfycbyUWQTFjxq6-9G5TQMURXR-yvacg_XzwpFw9cEX0RqRGOaiwQoqqgBdnJycIkkKm1BK/exec';
 
 async function initLiff(){
   const statusEl=document.getElementById('liff-status');
@@ -217,20 +217,23 @@ async function submitOrder(){
     lineDisplayName:lineUser.displayName,
     linePictureUrl:lineUser.pictureUrl,
     name,phone,address:addr,note,
-    items:items.map(([id,q])=>{const p=PRODUCTS.find(x=>x.id===id);return{id,name:p.name,qty:q,price:p.price,subtotal:p.price*q};}),
+    items:JSON.stringify(items.map(([id,q])=>{const p=PRODUCTS.find(x=>x.id===id);return{id,name:p.name,qty:q,price:p.price,subtotal:p.price*q};})),
     total,
     timestamp:new Date().toISOString()
   };
   
   try{
-    const response = await fetch(scriptUrl,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(payload)
+    var query = new URLSearchParams(payload).toString();
+    const response = await fetch(`${scriptUrl}?${query}`, {
+      method: 'POST',
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8",
+      }
     });
     
     if(response.ok){
-      console.log('✅ Order sent successfully');
+      const result = await response.json();
+      console.log('✅ Order sent successfully:', result);
     } else {
       console.log('❌ Error:', response.status, response.statusText);
     }
