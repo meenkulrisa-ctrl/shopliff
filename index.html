@@ -1,3 +1,9 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShopEasy - LINE LIFF Store</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600&family=Prompt:wght@500;600&display=swap');
   *{box-sizing:border-box;margin:0;padding:0}
@@ -51,8 +57,9 @@
   .success-icon{font-size:44px;margin-bottom:10px}
   .success-screen h2{font-family:'Prompt',sans-serif;font-size:17px;color:var(--primary);margin-bottom:6px}
   .ref-code{background:#E1F5EE;border-radius:8px;padding:9px;margin:10px 0;font-size:12px;color:#0F6E56;font-weight:600}
-  .liff-init-loading{text-align:center;padding:40px 20px;color:var(--muted);font-size:13px}
 </style>
+</head>
+<body>
 
 <h2 style="position:absolute;left:-9999px">ร้านค้า LINE LIFF สั่งซื้อสินค้า</h2>
 
@@ -68,11 +75,6 @@
   <div class="status-bar">
     <div style="font-size:11px;color:var(--muted)">📊 เชื่อมต่อ Google Sheets</div>
     <div id="liff-status" class="liff-badge">⏳ ตรวจสอบ LIFF...</div>
-  </div>
-
-  <div style="padding:8px 10px 0;display:flex;gap:6px">
-    <input id="script-url" placeholder="Google Apps Script URL..." style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:11px;font-family:'Sarabun',sans-serif;background:#fff;outline:none">
-    <button onclick="saveUrl()" style="padding:7px 10px;background:var(--primary);color:#fff;border:none;border-radius:7px;font-size:11px;cursor:pointer;font-family:'Sarabun',sans-serif">บันทึก</button>
   </div>
 
   <div class="products-grid" id="grid"></div>
@@ -92,9 +94,9 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@line/liff@2.22.3/dist/liff.min.js"></script>
 <script>
-const LIFF_ID = '2009812734-KondoBJ0'; // ← ใส่ LIFF ID ของคุณ
+const LIFF_ID = '2009812734-KondoBJ0';
 const PRODUCTS=[
-  {id:'P001',name:'เสื้อยืด Basic',price:299,emoji:'👕',stock:50},
+  {id:'P001',name:'เสื้อยืด Basic',price:299,emoji:'���',stock:50},
   {id:'P002',name:'กางเกงยีนส์',price:899,emoji:'👖',stock:20},
   {id:'P003',name:'รองเท้าผ้าใบ',price:1290,emoji:'👟',stock:15},
   {id:'P004',name:'กระเป๋าสะพาย',price:590,emoji:'👜',stock:30},
@@ -104,13 +106,8 @@ const PRODUCTS=[
 
 let cart={};
 let lineUser={userId:null,displayName:'ไม่ทราบชื่อ',pictureUrl:null};
-const scriptUrl = 'https://script.google.com/macros/s/AKfycbwmaOCRDfELPqSBbC92BgcGb_lbFAkIRpU5m0Im9ZYvR0xL5g5uhu_5q6fu5H_fbwwH/exec';
+const scriptUrl = 'https://script.google.com/macros/s/AKfycbwLpi97E_2DsHUW1QszPTpsLvFCiX7NED3n8o0nZju74kSJysKIqTuB2HmsdKXaDjsx/exec';
 
-function saveUrl(){
-  localStorage.setItem('gas_url', scriptUrl);
-}
-
-// LIFF Init
 async function initLiff(){
   const statusEl=document.getElementById('liff-status');
   const pillEl=document.getElementById('user-pill');
@@ -131,7 +128,6 @@ async function initLiff(){
       ${lineUser.pictureUrl?`<img src="${lineUser.pictureUrl}" class="user-avatar" onerror="this.style.display='none'">`:'<span style="font-size:14px">👤</span>'}
       <span class="user-name-small">${lineUser.displayName}</span>`;
   }catch(err){
-    // Demo mode (ไม่ได้เปิดใน LINE)
     lineUser={userId:'DEMO-'+Math.random().toString(36).substr(2,6).toUpperCase(),displayName:'ทดสอบระบบ',pictureUrl:null};
     statusEl.innerHTML='⚠️ Demo Mode (ไม่ใช่ LINE)';
     statusEl.style.background='#FAEEDA';statusEl.style.color='#BA7517';
@@ -165,8 +161,14 @@ function openModal(){
   document.getElementById('modal-body').innerHTML=buildForm();
   document.getElementById('overlay').classList.add('show');
 }
-function closeModal(){document.getElementById('overlay').classList.remove('show');}
-function bgClick(e){if(e.target===document.getElementById('overlay'))closeModal();}
+
+function closeModal(){
+  document.getElementById('overlay').classList.remove('show');
+}
+
+function bgClick(e){
+  if(e.target===document.getElementById('overlay'))closeModal();
+}
 
 function buildForm(){
   const items=Object.entries(cart).filter(([,q])=>q>0);
@@ -201,11 +203,14 @@ async function submitOrder(){
   const addr=document.getElementById('f-addr').value.trim();
   const note=document.getElementById('f-note').value.trim();
   if(!name||!phone||!addr){alert('กรุณากรอกข้อมูลให้ครบ');return;}
+  
   const btn=document.querySelector('.btn-confirm');
   btn.textContent='กำลังบันทึก...';btn.disabled=true;
+  
   const items=Object.entries(cart).filter(([,q])=>q>0);
   const total=items.reduce((s,[id,q])=>{const p=PRODUCTS.find(x=>x.id===id);return s+(p?p.price*q:0);},0);
   const orderRef='ORD-'+Date.now().toString(36).toUpperCase();
+  
   const payload={
     orderId:orderRef,
     lineUserId:lineUser.userId,
@@ -216,20 +221,24 @@ async function submitOrder(){
     total,
     timestamp:new Date().toISOString()
   };
-  if(scriptUrl){
-    try{
-      const response = await fetch(scriptUrl,{
-        method:'POST',
-        mode: 'no-cors',  // ← เพิ่มบรรทัดนี้
-        body:JSON.stringify(payload),
-        headers:{'Content-Type':'application/json'}
-      });
-      console.log('Order sent successfully');
-    }
-    catch(e){
-      console.log('Error sending order:',e.message);
+  
+  try{
+    const response = await fetch(scriptUrl,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+    
+    if(response.ok){
+      console.log('✅ Order sent successfully');
+    } else {
+      console.log('❌ Error:', response.status, response.statusText);
     }
   }
+  catch(e){
+    console.log('⚠️ Error sending order:',e.message);
+  }
+  
   cart={};
   document.getElementById('cart-summary').textContent='ยังไม่มีสินค้า';
   document.getElementById('cart-total').textContent='';
@@ -249,3 +258,6 @@ async function submitOrder(){
 renderProducts();
 initLiff();
 </script>
+
+</body>
+</html>
