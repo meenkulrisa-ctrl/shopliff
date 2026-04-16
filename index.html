@@ -106,7 +106,7 @@ const PRODUCTS=[
 
 let cart={};
 let lineUser={userId:null,displayName:'ไม่ทราบชื่อ',pictureUrl:null};
-const scriptUrl = 'https://script.google.com/macros/s/AKfycbyUWQTFjxq6-9G5TQMURXR-yvacg_XzwpFw9cEX0RqRGOaiwQoqqgBdnJycIkkKm1BK/exec';
+const scriptUrl = 'https://script.google.com/macros/s/AKfycbyTBlTCHcbSbDmAwEeMkDOSWwzoVjaSzBVWrDZ6R4D6W3INZxy5_MsEKXXyEBgz4xRQ/exec';
 
 async function initLiff(){
   const statusEl=document.getElementById('liff-status');
@@ -227,9 +227,11 @@ async function submitOrder(){
     const response = await fetch(`${scriptUrl}?${query}`, {
       method: 'POST',
       headers: {
-        "Content-Type": "text/plain;charset=utf-8",
+        'Content-Type': 'text/plain;charset=utf-8',
       }
     });
+    
+    console.log("success:", response);
     
     if(response.ok){
       const result = await response.json();
@@ -238,8 +240,8 @@ async function submitOrder(){
       console.log('❌ Error:', response.status, response.statusText);
     }
   }
-  catch(e){
-    console.log('⚠️ Error sending order:',e.message);
+  catch(err){
+    console.log("Error:" + err);
   }
   
   cart={};
