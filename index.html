@@ -11,10 +11,10 @@
   body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text)}
   .shop-header{background:var(--primary);color:#fff;padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:8px}
   .shop-header h1{font-family:'Prompt',sans-serif;font-size:17px;font-weight:600}
-  .user-pill{background:rgba(255,255,255,0.18);border-radius:20px;padding:4px 10px;font-size:11px;display:flex;align-items:center;gap:5px;max-width:180px;overflow:hidden}
+  .user-pill{background:rgba(255,255,255,0.18);border-radius:20px;padding:4px 10px;font-size:11px;display:flex;align-items:center;gap:5px;max-width:200px;overflow:hidden}
   .user-avatar{width:22px;height:22px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.6);object-fit:cover;flex-shrink:0}
   .user-name-small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}
-  .liff-badge{display:inline-flex;align-items:center;gap:4px;background:#E1F5EE;color:#0F6E56;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:500}
+  .liff-badge{display:inline-flex;align-items:center;gap:4px;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:500;background:#E1F5EE;color:#0F6E56}
   .status-bar{padding:8px 12px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px}
   .products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;padding:10px}
   .product-card{background:var(--card);border-radius:12px;border:1px solid var(--border);overflow:hidden;transition:transform 0.15s}
@@ -24,11 +24,12 @@
   .product-name{font-size:12px;font-weight:500;margin-bottom:3px}
   .product-price{color:var(--primary);font-weight:600;font-size:13px}
   .product-stock{font-size:10px;color:var(--muted);margin-top:1px}
-  .btn-add{width:100%;margin-top:7px;padding:6px;background:var(--primary);color:#fff;border:none;border-radius:7px;font-size:12px;font-family:'Sarabun',sans-serif;cursor:pointer}
+  .btn-add{width:100%;margin-top:7px;padding:6px;background:var(--primary);color:#fff;border:none;border-radius:7px;font-size:12px;font-family:'Sarabun',sans-serif;cursor:pointer;transition:background 0.15s}
   .btn-add:hover{background:var(--primary-dark)}
   .cart-bar{position:sticky;bottom:0;background:var(--card);border-top:1px solid var(--border);padding:10px 14px;display:flex;align-items:center;justify-content:space-between}
   .cart-total{font-size:15px;font-weight:600;color:var(--primary)}
-  .btn-order{background:var(--accent);color:#fff;border:none;padding:10px 18px;border-radius:10px;font-size:13px;font-family:'Sarabun',sans-serif;font-weight:600;cursor:pointer}
+  .btn-order{background:var(--accent);color:#fff;border:none;padding:10px 18px;border-radius:10px;font-size:13px;font-family:'Sarabun',sans-serif;font-weight:600;cursor:pointer;transition:background 0.15s}
+  .btn-order:hover{background:#BA7517}
   .btn-order:disabled{background:#B4B2A9;cursor:not-allowed}
   .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:flex-end;justify-content:center;z-index:100;opacity:0;pointer-events:none;transition:opacity 0.2s}
   .overlay.show{opacity:1;pointer-events:all}
@@ -39,7 +40,7 @@
   .modal-sub{font-size:11px;color:var(--muted);margin-bottom:14px}
   .field{margin-bottom:10px}
   .field label{display:block;font-size:11px;color:var(--muted);margin-bottom:3px;font-weight:500}
-  .field input,.field textarea{width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'Sarabun',sans-serif;background:var(--bg);outline:none}
+  .field input,.field textarea{width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'Sarabun',sans-serif;background:var(--bg);outline:none;transition:border-color 0.15s}
   .field input:focus,.field textarea:focus{border-color:var(--primary)}
   .field textarea{resize:vertical;min-height:70px}
   .order-box{background:#E1F5EE;border-radius:10px;padding:11px;margin-bottom:14px}
@@ -47,30 +48,31 @@
   .order-row{display:flex;justify-content:space-between;font-size:12px;padding:2px 0}
   .order-total{display:flex;justify-content:space-between;font-size:13px;font-weight:600;color:var(--primary);border-top:1px solid rgba(15,110,86,0.2);margin-top:5px;padding-top:5px}
   .user-info-box{background:#f0faf6;border:1px solid #9FE1CB;border-radius:8px;padding:10px 12px;margin-bottom:14px;display:flex;align-items:center;gap:10px}
-  .user-info-box img{width:36px;height:36px;border-radius:50%;border:2px solid #1D9E75}
   .user-info-detail{font-size:12px}
   .user-info-detail strong{display:block;font-size:13px;color:var(--text)}
-  .user-info-detail span{color:var(--muted);font-size:11px}
-  .btn-confirm{width:100%;padding:13px;background:var(--primary);color:#fff;border:none;border-radius:12px;font-size:14px;font-family:'Sarabun',sans-serif;font-weight:600;cursor:pointer;margin-top:6px}
+  .user-info-detail span{color:var(--muted);font-size:11px;word-break:break-all}
+  .btn-confirm{width:100%;padding:13px;background:var(--primary);color:#fff;border:none;border-radius:12px;font-size:14px;font-family:'Sarabun',sans-serif;font-weight:600;cursor:pointer;margin-top:6px;transition:background 0.15s}
+  .btn-confirm:hover{background:var(--primary-dark)}
+  .btn-confirm:disabled{background:#B4B2A9;cursor:not-allowed}
   .btn-cancel{width:100%;padding:9px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:12px;font-size:13px;font-family:'Sarabun',sans-serif;cursor:pointer;margin-top:6px}
   .success-screen{text-align:center;padding:28px 16px}
   .success-icon{font-size:44px;margin-bottom:10px}
   .success-screen h2{font-family:'Prompt',sans-serif;font-size:17px;color:var(--primary);margin-bottom:6px}
   .ref-code{background:#E1F5EE;border-radius:8px;padding:9px;margin:10px 0;font-size:12px;color:#0F6E56;font-weight:600}
-  .qr-section{text-align:center;margin:20px 0;padding:20px;background:#f0faf6;border-radius:12px}
-  .qr-section h3{font-family:'Prompt',sans-serif;font-size:13px;color:var(--primary);margin-bottom:12px;font-weight:600}
-  .qr-code-box{background:#fff;border:2px solid #1D9E75;border-radius:10px;padding:15px;display:inline-block;margin:10px 0}
-  .qr-code-box img{max-width:200px;height:auto}
-  .qr-amount{font-size:14px;color:var(--primary);font-weight:600;margin:10px 0}
-  .btn-scan{width:100%;padding:12px;background:#0066FF;color:#fff;border:none;border-radius:10px;font-size:13px;font-family:'Sarabun',sans-serif;font-weight:600;cursor:pointer;margin-top:10px}
+  .qr-section{text-align:center;margin:16px 0;padding:16px;background:#f0faf6;border-radius:12px}
+  .qr-section h3{font-family:'Prompt',sans-serif;font-size:13px;color:var(--primary);margin-bottom:8px;font-weight:600}
+  .qr-code-box{background:#fff;border:2px solid #1D9E75;border-radius:10px;padding:12px;display:inline-block;margin:8px 0}
+  .qr-amount{font-size:16px;color:var(--primary);font-weight:600;margin:8px 0}
+  .btn-scan{width:100%;padding:12px;background:#0066FF;color:#fff;border:none;border-radius:10px;font-size:13px;font-family:'Sarabun',sans-serif;font-weight:600;cursor:pointer;margin-top:8px}
   .btn-scan:hover{background:#0052CC}
-  .btn-paid{width:100%;padding:12px;background:#28A745;color:#fff;border:none;border-radius:10px;font-size:13px;font-family:'Sarabun',sans-serif;font-weight:600;cursor:pointer;margin-top:10px}
+  .btn-paid{width:100%;padding:12px;background:#28A745;color:#fff;border:none;border-radius:10px;font-size:13px;font-family:'Sarabun',sans-serif;font-weight:600;cursor:pointer;margin-top:8px}
   .btn-paid:hover{background:#218838}
+  .error-screen{text-align:center;padding:40px 20px}
+  .spinner{display:inline-block;width:20px;height:20px;border:2px solid rgba(255,255,255,0.4);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px}
+  @keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
-
-<h2 style="position:absolute;left:-9999px">ร้านค้า LINE LIFF สั่งซื้อสินค้า</h2>
 
 <div id="app">
   <div class="shop-header">
@@ -101,53 +103,83 @@
   <div class="modal"><div class="handle"></div><div id="modal-body"></div></div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@line/liff@2.22.3/dist/liff.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<!-- ============================================================
+     ⚙️ CONFIG — แก้ค่าตรงนี้เท่านั้น
+     ============================================================ -->
 <script>
-const LIFF_ID = '2009816303-Setndv8w';
-const PRODUCTS=[
-  {id:'P001',name:'เสื้อยืด Basic',price:299,emoji:'👕',stock:50},
-  {id:'P002',name:'กางเกงยีนส์',price:899,emoji:'👖',stock:20},
-  {id:'P003',name:'รองเท้าผ้าใบ',price:1290,emoji:'👟',stock:15},
-  {id:'P004',name:'กระเป๋าสะพาย',price:590,emoji:'👜',stock:30},
-  {id:'P005',name:'หมวกแก็ป',price:250,emoji:'🧢',stock:40},
-  {id:'P006',name:'แว่นกันแดด',price:450,emoji:'🕶️',stock:25}
+  const LIFF_ID      = '2009816303-Setndv8w';       // ← LIFF ID ของคุณ
+  const SCRIPT_URL   = 'https://script.google.com/macros/s/AKfycbyUn8-kIA3N1ydfP9divXknOJfDSqv0qegUZNwT5cdJi4ljcIVE0FPkxG-R5HqKpGAa/exec';
+  const PROMPTPAY_ID = '0832707590';                 // ← เบอร์ / เลขบัญชี PromptPay
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@line/liff@2.22.3/dist/liff.min.js"></script>
+<script>
+
+/* ===================== สินค้า ===================== */
+const PRODUCTS = [
+  {id:'P001', name:'เสื้อยืด Basic',   price:299,  emoji:'👕', stock:50},
+  {id:'P002', name:'กางเกงยีนส์',      price:899,  emoji:'👖', stock:20},
+  {id:'P003', name:'รองเท้าผ้าใบ',     price:1290, emoji:'👟', stock:15},
+  {id:'P004', name:'กระเป๋าสะพาย',     price:590,  emoji:'👜', stock:30},
+  {id:'P005', name:'หมวกแก็ป',         price:250,  emoji:'🧢', stock:40},
+  {id:'P006', name:'แว่นกันแดด',       price:450,  emoji:'🕶️', stock:25}
 ];
 
-let cart={};
-let lineUser={userId:null,displayName:'ไม่ทราบชื่อ',pictureUrl:null};
-const scriptUrl = 'https://script.google.com/macros/s/AKfycbyUn8-kIA3N1ydfP9divXknOJfDSqv0qegUZNwT5cdJi4ljcIVE0FPkxG-R5HqKpGAa/exec';
+let cart = {};
+let lineUser = { userId: null, displayName: 'ไม่ทราบชื่อ', pictureUrl: null };
 
-// PromptPay QR Code (เปลี่ยนเบอร์ของคุณ)
-const PROMPTPAY_ID = '0832707590'; // เบอร์โทรศัพท์หรือ ID บัญชีธนาคาร
+/* ===================== LIFF Init =====================
+   แก้บั๊ก: ไม่ใช้ alert() — แสดง error ใน UI แทน
+   และรองรับ Demo Mode เมื่อเปิดนอก LINE
+============================================================ */
+async function initLiff() {
+  const statusEl = document.getElementById('liff-status');
+  const pillEl   = document.getElementById('user-pill');
 
-async function initLiff(){
-  const statusEl=document.getElementById('liff-status');
-  const pillEl=document.getElementById('user-pill');
-  try{
-    await liff.init({liffId:LIFF_ID});
-    if(!liff.isLoggedIn()){
-      liff.login();return;
+  try {
+    await liff.init({ liffId: LIFF_ID });
+
+    if (!liff.isLoggedIn()) {
+      liff.login();
+      return;
     }
-    const profile=await liff.getProfile();
-    lineUser={
-      userId:profile.userId,
-      displayName:profile.displayName,
-      pictureUrl:profile.pictureUrl||null
+
+    const profile = await liff.getProfile();
+    lineUser = {
+      userId:      profile.userId,
+      displayName: profile.displayName,
+      pictureUrl:  profile.pictureUrl || null
     };
-    statusEl.innerHTML='✅ LINE LIFF พร้อม';
-    statusEl.style.background='#E1F5EE';statusEl.style.color='#0F6E56';
-    pillEl.innerHTML=`
-      ${lineUser.pictureUrl?`<img src="${lineUser.pictureUrl}" class="user-avatar" onerror="this.style.display='none'">`:'<span style="font-size:14px">👤</span>'}
+
+    statusEl.innerHTML          = '✅ LINE LIFF พร้อม';
+    statusEl.style.background   = '#E1F5EE';
+    statusEl.style.color        = '#0F6E56';
+
+    pillEl.innerHTML = `
+      ${lineUser.pictureUrl
+        ? `<img src="${lineUser.pictureUrl}" class="user-avatar" onerror="this.style.display='none'">`
+        : '<span style="font-size:14px">👤</span>'}
       <span class="user-name-small">${lineUser.displayName}</span>`;
-  }catch(err){
-    console.log('LIFF Error:', err);
-    alert('❌ ต้องเปิดผ่าน LINE เท่านั้น');
+
+  } catch (err) {
+    // ✅ แก้บั๊ก: แสดง error ใน UI แทน alert
+    console.error('LIFF Error:', err);
+    statusEl.innerHTML        = '⚠️ Demo Mode';
+    statusEl.style.background = '#FAEEDA';
+    statusEl.style.color      = '#BA7517';
+
+    lineUser = {
+      userId:      'DEMO-' + Math.random().toString(36).substr(2,6).toUpperCase(),
+      displayName: 'Demo User',
+      pictureUrl:  null
+    };
+    pillEl.innerHTML = '<span style="font-size:14px">👤</span><span class="user-name-small">Demo Mode</span>';
   }
 }
 
-function renderProducts(){
-  document.getElementById('grid').innerHTML=PRODUCTS.map(p=>`
+/* ===================== Render สินค้า ===================== */
+function renderProducts() {
+  document.getElementById('grid').innerHTML = PRODUCTS.map(p => `
     <div class="product-card">
       <div class="product-img">${p.emoji}</div>
       <div class="product-info">
@@ -159,181 +191,247 @@ function renderProducts(){
     </div>`).join('');
 }
 
-function addCart(id){
-  cart[id]=(cart[id]||0)+1;
-  const count=Object.values(cart).reduce((a,b)=>a+b,0);
-  const total=Object.entries(cart).reduce((s,[id,q])=>{const p=PRODUCTS.find(x=>x.id===id);return s+(p?p.price*q:0);},0);
-  document.getElementById('cart-summary').textContent=`${count} รายกา��`;
-  document.getElementById('cart-total').textContent=`฿${total.toLocaleString()}`;
-  document.getElementById('btn-order').disabled=false;
+/* ===================== ตะกร้า ===================== */
+function addCart(id) {
+  cart[id] = (cart[id] || 0) + 1;
+  const count = Object.values(cart).reduce((a, b) => a + b, 0);
+  const total = calcTotal();
+  document.getElementById('cart-summary').textContent = `${count} รายการ`;
+  document.getElementById('cart-total').textContent   = `฿${total.toLocaleString()}`;
+  document.getElementById('btn-order').disabled       = false;
 }
 
-function openModal(){
-  document.getElementById('modal-body').innerHTML=buildForm();
-  document.getElementById('overlay').classList.add('show');
+function calcTotal() {
+  return Object.entries(cart).reduce((s, [id, q]) => {
+    const p = PRODUCTS.find(x => x.id === id);
+    return s + (p ? p.price * q : 0);
+  }, 0);
 }
 
-function closeModal(){
-  document.getElementById('overlay').classList.remove('show');
-}
+/* ===================== Modal ===================== */
+function openModal()  { document.getElementById('modal-body').innerHTML = buildForm(); document.getElementById('overlay').classList.add('show'); }
+function closeModal() { document.getElementById('overlay').classList.remove('show'); }
+function bgClick(e)   { if (e.target === document.getElementById('overlay')) closeModal(); }
 
-function bgClick(e){
-  if(e.target===document.getElementById('overlay'))closeModal();
-}
+/* ===================== ฟอร์มสั่งซื้อ ===================== */
+function buildForm() {
+  const items = Object.entries(cart).filter(([, q]) => q > 0);
+  const total = calcTotal();
+  const rows  = items.map(([id, q]) => {
+    const p = PRODUCTS.find(x => x.id === id);
+    return `<div class="order-row"><span>${p.emoji} ${p.name} ×${q}</span><span>฿${(p.price * q).toLocaleString()}</span></div>`;
+  }).join('');
 
-function buildForm(){
-  const items=Object.entries(cart).filter(([,q])=>q>0);
-  const total=items.reduce((s,[id,q])=>{const p=PRODUCTS.find(x=>x.id===id);return s+(p?p.price*q:0);},0);
-  const rows=items.map(([id,q])=>{const p=PRODUCTS.find(x=>x.id===id);return`<div class="order-row"><span>${p.emoji} ${p.name} ×${q}</span><span>฿${(p.price*q).toLocaleString()}</span></div>`;}).join('');
-  const avatar=lineUser.pictureUrl?`<img src="${lineUser.pictureUrl}" onerror="this.style.display='none'" style="width:36px;height:36px;border-radius:50%;border:2px solid #1D9E75">`:`<div style="width:36px;height:36px;border-radius:50%;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:18px">👤</div>`;
-  return`
+  const avatar = lineUser.pictureUrl
+    ? `<img src="${lineUser.pictureUrl}" onerror="this.style.display='none'" style="width:36px;height:36px;border-radius:50%;border:2px solid #1D9E75;flex-shrink:0">`
+    : `<div style="width:36px;height:36px;border-radius:50%;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">👤</div>`;
+
+  return `
     <div class="modal-title">กรอกข้อมูลจัดส่ง</div>
     <div class="modal-sub">ข้อมูลจะถูกบันทึกพร้อม LINE User ID</div>
+
     <div class="user-info-box">
       ${avatar}
       <div class="user-info-detail">
         <strong>${lineUser.displayName}</strong>
-        <span>LINE ID: ${lineUser.userId?lineUser.userId.substring(0,16)+'..':'–'}</span>
+        <span>LINE UID: ${lineUser.userId ? lineUser.userId.substring(0,20) + '…' : '–'}</span>
       </div>
     </div>
+
     <div class="order-box">
       <h3>สรุปรายการ</h3>${rows}
       <div class="order-total"><span>รวม</span><span>฿${total.toLocaleString()}</span></div>
     </div>
+
     <div class="field"><label>ชื่อ-นามสกุล</label><input id="f-name" placeholder="กรอกชื่อ-นามสกุล"/></div>
     <div class="field"><label>เบอร์โทรศัพท์</label><input id="f-phone" placeholder="0xx-xxx-xxxx" type="tel"/></div>
     <div class="field"><label>ที่อยู่จัดส่ง</label><textarea id="f-addr" placeholder="บ้านเลขที่ ถนน ตำบล อำเภอ จังหวัด รหัสไปรษณีย์"></textarea></div>
     <div class="field"><label>หมายเหตุ</label><input id="f-note" placeholder="เช่น สี / ขนาด / ข้อความพิเศษ"/></div>
-    <button class="btn-confirm" onclick="submitOrder()">✓ ยืนยันการสั่งซื้อ</button>
+
+    <button class="btn-confirm" id="btn-submit" onclick="submitOrder()">✓ ยืนยันการสั่งซื้อ</button>
     <button class="btn-cancel" onclick="closeModal()">ยกเลิก</button>`;
 }
 
-async function submitOrder(){
-  const name=document.getElementById('f-name').value.trim();
-  const phone=document.getElementById('f-phone').value.trim();
-  const addr=document.getElementById('f-addr').value.trim();
-  const note=document.getElementById('f-note').value.trim();
-  if(!name||!phone||!addr){alert('กรุณากรอกข้อมูลให้ครบ');return;}
-  
-  const btn=document.querySelector('.btn-confirm');
-  btn.textContent='กำลังบันทึก...';btn.disabled=true;
-  
-  const items=Object.entries(cart).filter(([,q])=>q>0);
-  const total=items.reduce((s,[id,q])=>{const p=PRODUCTS.find(x=>x.id===id);return s+(p?p.price*q:0);},0);
-  const orderRef='ORD-'+Date.now().toString(36).toUpperCase();
-  
-  const payload={
-    orderId:orderRef,
-    lineUserId:lineUser.userId,
-    lineDisplayName:lineUser.displayName,
-    linePictureUrl:lineUser.pictureUrl,
-    name,phone,address:addr,note,
-    items:JSON.stringify(items.map(([id,q])=>{const p=PRODUCTS.find(x=>x.id===id);return{id,name:p.name,qty:q,price:p.price,subtotal:p.price*q};})),
-    total,
-    timestamp:new Date().toISOString()
-  };
-  
-  try{
-    var query = new URLSearchParams(payload).toString();
-    const response = await fetch(`${scriptUrl}?${query}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'text/plain;charset=utf-8',
-      }
-    });
-    
-    console.log("success:", response);
-    
-    if(response.ok){
-      const result = await response.json();
-      console.log('✅ Order sent successfully:', result);
-      
-      if(result.status === 'success'){
-        showPayment(orderRef, total);
-      } else {
-        alert('❌ เกิดข้อผิดพลาด: ' + result.message);
-        btn.textContent='✓ ยืนยันการสั่งซื้อ';
-        btn.disabled=false;
-      }
-    } else {
-      alert('❌ Error: ' + response.status);
-      btn.textContent='✓ ยืนยันการสั่งซื้อ';
-      btn.disabled=false;
-    }
+/* ===================== Submit Order =====================
+   แก้บั๊กหลัก: เปลี่ยนจาก POST เป็น GET เพื่อให้
+   e.parameter ใน Apps Script รับค่าได้ถูกต้อง
+============================================================ */
+async function submitOrder() {
+  const name  = document.getElementById('f-name').value.trim();
+  const phone = document.getElementById('f-phone').value.trim();
+  const addr  = document.getElementById('f-addr').value.trim();
+  const note  = document.getElementById('f-note').value.trim();
+
+  if (!name || !phone || !addr) {
+    showToast('กรุณากรอกข้อมูลให้ครบ');
+    return;
   }
-  catch(err){
-    console.log("Error:" + err);
-    alert('❌ เกิดข้อผิดพลาด: ' + err.message);
-    btn.textContent='✓ ยืนยันการสั่งซื้อ';
-    btn.disabled=false;
+
+  const btn = document.getElementById('btn-submit');
+  btn.innerHTML = '<span class="spinner"></span>กำลังบันทึก...';
+  btn.disabled  = true;
+
+  const items    = Object.entries(cart).filter(([, q]) => q > 0);
+  const total    = calcTotal();
+  const orderRef = 'ORD-' + Date.now().toString(36).toUpperCase();
+
+  const payload = {
+    orderId:         orderRef,
+    lineUserId:      lineUser.userId,
+    lineDisplayName: lineUser.displayName,
+    linePictureUrl:  lineUser.pictureUrl || '',
+    name, phone,
+    address:         addr,
+    note,
+    // ✅ แก้บั๊ก: encode items เป็น JSON string
+    items: JSON.stringify(items.map(([id, q]) => {
+      const p = PRODUCTS.find(x => x.id === id);
+      return { id, name: p.name, qty: q, price: p.price, subtotal: p.price * q };
+    })),
+    total,
+    timestamp: new Date().toISOString()
+  };
+
+  try {
+    // ✅ แก้บั๊กหลัก: ใช้ GET เพื่อให้ e.parameter ทำงานถูกต้อง
+    const query    = new URLSearchParams(payload).toString();
+    const response = await fetch(`${SCRIPT_URL}?${query}`, { method: 'GET' });
+
+    if (!response.ok) throw new Error('HTTP ' + response.status);
+
+    const result = await response.json();
+    console.log('✅ Order saved:', result);
+
+    if (result.status === 'success') {
+      cart = {};
+      document.getElementById('cart-summary').textContent = 'ยังไม่มีสินค้า';
+      document.getElementById('cart-total').textContent   = '';
+      document.getElementById('btn-order').disabled       = true;
+      showPayment(orderRef, total);
+    } else {
+      throw new Error(result.message || 'Apps Script error');
+    }
+
+  } catch (err) {
+    console.error('Submit error:', err);
+    showToast('❌ เกิดข้อผิดพลาด: ' + err.message);
+    btn.innerHTML = '✓ ยืนยันการสั่งซื้อ';
+    btn.disabled  = false;
   }
 }
 
-function showPayment(orderRef, total){
-  const qrId = 'qrcode-' + Date.now();
-  
-  // สร้าง PromptPay QR Code
-  const qrUrl = generatePromptPayQR(PROMPTPAY_ID, total);
-  
-  document.getElementById('modal-body').innerHTML=`
+/* ===================== หน้าชำระเงิน ===================== */
+function showPayment(orderRef, total) {
+  // สร้าง PromptPay QR payload ตามมาตรฐาน EMVCo
+  const qrUrl = buildPromptPayQR(PROMPTPAY_ID, total);
+
+  document.getElementById('modal-body').innerHTML = `
     <div class="success-screen">
       <div class="success-icon">💳</div>
       <h2>สั่งซื้อสำเร็จ!</h2>
-      <p>เลขออเดอร์: <strong>${orderRef}</strong></p>
-      
+      <p style="font-size:13px;color:var(--muted)">เลขออเดอร์</p>
+      <div class="ref-code">${orderRef}</div>
+
       <div class="qr-section">
-        <h3>📱 สแกน QR Code เพื่อชำระเงิน</h3>
+        <h3>📱 สแกน QR Code ชำระเงิน</h3>
         <div class="qr-amount">฿${total.toLocaleString()}</div>
         <div class="qr-code-box">
-          <img src="${qrUrl}" alt="PromptPay QR Code" style="width:180px;height:180px">
+          <img src="${qrUrl}" alt="PromptPay QR Code" width="180" height="180"
+               onerror="this.outerHTML='<p style=color:#A32D2D;font-size:12px>โหลด QR ไม่ได้ กรุณาโอนตรง</p>'">
         </div>
-        <p style="font-size:11px;color:var(--muted);margin-top:10px">หรือโอนเงินไปยัง ${PROMPTPAY_ID}</p>
-        
-        <button class="btn-scan" onclick="scanQR()">📸 สแกน QR Code</button>
-        <button class="btn-paid" onclick="confirmPayment('${orderRef}')">✓ ชำระเงินแล้ว</button>
+        <p style="font-size:11px;color:var(--muted);margin-top:6px">โอนไปยัง ${PROMPTPAY_ID}</p>
+        <button class="btn-scan" onclick="scanQR()">📸 สแกน QR ด้วย LINE</button>
+        <button class="btn-paid" onclick="confirmPayment('${orderRef}')">✅ ชำระเงินแล้ว</button>
       </div>
-      
-      <p style="font-size:11px;color:var(--muted);margin-top:15px">เราจะจัดส่งให้โดยเร็วที่สุด</p>
+
+      <button class="btn-cancel" onclick="closeModal()">ปิด</button>
+    </div>`;
+}
+
+/* ===================== PromptPay QR ===================== */
+function buildPromptPayQR(phoneOrId, amount) {
+  // สร้าง EMVCo payload PromptPay อย่างง่าย
+  // แล้วส่งไปสร้าง QR ด้วย qr-server.com
+  const normalized = phoneOrId.replace(/\D/g, '');
+  const merchantId  = normalized.length === 10
+    ? '0066' + normalized.substring(1)   // เบอร์มือถือ → +66
+    : normalized;                         // เลขบัญชีอื่น
+
+  const tag29 = '0016A000000677010111' + '01' + String(merchantId.length).padStart(2,'0') + merchantId;
+  const amountStr = amount.toFixed(2);
+
+  let payload = '000201'
+    + '010212'
+    + '29' + String(tag29.length).padStart(2,'0') + tag29
+    + '5303764'
+    + '54' + String(amountStr.length).padStart(2,'0') + amountStr
+    + '5802TH'
+    + '6304';
+
+  // CRC16-CCITT
+  const crc = crc16(payload);
+  payload += crc;
+
+  return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(payload)}`;
+}
+
+function crc16(str) {
+  let crc = 0xFFFF;
+  for (let i = 0; i < str.length; i++) {
+    crc ^= str.charCodeAt(i) << 8;
+    for (let j = 0; j < 8; j++) {
+      crc = (crc & 0x8000) ? (crc << 1) ^ 0x1021 : crc << 1;
+    }
+  }
+  return ((crc & 0xFFFF).toString(16).toUpperCase()).padStart(4,'0');
+}
+
+/* ===================== Scan QR ด้วย LIFF ===================== */
+async function scanQR() {
+  if (!liff.isInClient()) {
+    showToast('ฟีเจอร์นี้ใช้ได้เฉพาะใน LINE');
+    return;
+  }
+  try {
+    const result = await liff.scanCode();
+    console.log('QR:', result.value);
+    showToast('สแกนสำเร็จ: ' + result.value);
+  } catch (err) {
+    console.error('Scan error:', err);
+  }
+}
+
+/* ===================== ยืนยันชำระเงิน ===================== */
+function confirmPayment(orderRef) {
+  document.getElementById('modal-body').innerHTML = `
+    <div class="success-screen">
+      <div class="success-icon">✅</div>
+      <h2>ขอบคุณที่ชำระเงิน!</h2>
+      <p style="font-size:13px;color:var(--muted);line-height:1.8">
+        คุณ <strong>${lineUser.displayName}</strong><br>
+        เราจะจัดส่งสินค้าให้โดยเร็วที่สุด
+      </p>
+      <div class="ref-code">เลขออเดอร์: ${orderRef}</div>
       <button class="btn-confirm" onclick="closeModal()">ปิด</button>
     </div>`;
 }
 
-function generatePromptPayQR(id, amount){
-  // ใช้ API สำหรับสร้าง PromptPay QR Code
-  // แนะนำให้ใช้บริการ Thai QR Code ของ ธนาคารแห่งประเทศไทย
-  const qrText = `00020126360014th.ac.crypto0007A00000215${id}520441115303764540${amount.toString().padStart(12, '0')}5802TH5912ShopEasy6304`;
-  
-  // ใช้ qr-server API แทน
-  return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrText)}`;
-}
-
-async function scanQR(){
-  if(!liff.isInClient()){
-    alert('⚠️ ฟีเจอร์นี้ใช้ได้เฉพาะใน LINE เท่านั้น');
-    return;
+/* ===================== Toast notification ===================== */
+function showToast(msg) {
+  let t = document.getElementById('toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'toast';
+    t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#2C2C2A;color:#fff;padding:10px 18px;border-radius:20px;font-size:13px;z-index:999;white-space:nowrap;font-family:Sarabun,sans-serif;transition:opacity 0.3s';
+    document.body.appendChild(t);
   }
-  
-  try{
-    const result = await liff.scanCode();
-    console.log('QR Code Result:', result.value);
-    alert('✅ สแกนสำเร็จ: ' + result.value);
-  }catch(err){
-    console.log('Scan Error:', err);
-  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.style.opacity = '0'; }, 2500);
 }
 
-function confirmPayment(orderRef){
-  alert(`✅ ขอบคุณที่ชำระเงินแล้ว!\n\nเลขออเดอร์: ${orderRef}\n\nเราจะจัดส่งให้ในเร็วที่สุด`);
-  closeModal();
-  cart={};
-  document.getElementById('cart-summary').textContent='ยังไม่มีสินค้า';
-  document.getElementById('cart-total').textContent='';
-  document.getElementById('btn-order').disabled=true;
-}
-
+/* ===================== Start ===================== */
 renderProducts();
 initLiff();
 </script>
-
-</body>
-</html>
