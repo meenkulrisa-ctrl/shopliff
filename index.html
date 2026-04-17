@@ -138,8 +138,23 @@ async function submitOrder() {
 }
 
 /* ================= START ================= */
-window.addEventListener("load", () => {
-  initLiffSafe();
+window.addEventListener('load', async () => {
+  renderProducts();
+
+  // รอให้ liff โหลดจริง
+  let retry = 0;
+  while (typeof liff === 'undefined' && retry < 10) {
+    await new Promise(r => setTimeout(r, 300));
+    retry++;
+  }
+
+  if (typeof liff === 'undefined') {
+    console.error("❌ LIFF not loaded");
+    document.getElementById('liff-status').innerHTML = '❌ LIFF โหลดไม่สำเร็จ';
+    return;
+  }
+
+  initLiff();
 });
 </script>
 
