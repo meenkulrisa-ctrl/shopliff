@@ -23,7 +23,7 @@ button{width:100%;padding:8px;margin-top:8px;border:none;background:#2ecc71;colo
 
 <body>
 
-<div id="userBadge">⏳</div>
+<div id="userBadge">⏳ Loading...</div>
 <div class="header">🛒 ShopEasy</div>
 <div class="grid" id="productList"></div>
 
@@ -34,7 +34,7 @@ button{width:100%;padding:8px;margin-top:8px;border:none;background:#2ecc71;colo
 
 <script>
 const LIFF_ID = "2009816303-JA70bVo1";
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz1hueSO6NCVnAcaNlJrFUoQ77oGlKexcIr3sc_pFqQUYSFafibtNTWcJF9JKSyipsT/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw7wzSjgmWLxaTuBm1-4t10sYiw4-jq4yzAaetk_oO04BHE9tCbGdyOSfm1S_PIGxi6/exec";
 
 let lineUser = null;
 let cart = [];
@@ -47,33 +47,42 @@ function getDevice(){
   return "Other";
 }
 
-/* ===== LIFF (แก้ session ค้าง) ===== */
+/* ===== LIFF FINAL ===== */
 async function initLiff(){
   const badge = document.getElementById("userBadge");
 
   try{
     await liff.init({ liffId: LIFF_ID });
 
-    // 🔥 รี session ทุก 5 นาที
-    const MAX_AGE = 5 * 60 * 1000;
-    const last = localStorage.getItem("loginTime");
-
-    if (!last || Date.now() - last > MAX_AGE) {
-      localStorage.setItem("loginTime", Date.now());
-      try { liff.logout(); } catch(e){}
-      liff.login({ redirectUri: location.href });
-      return;
-    }
-
+    // 🔥 บังคับ login
     if (!liff.isLoggedIn()) {
       liff.login({ redirectUri: location.href });
       return;
     }
 
+    // 🔥 กัน session เพี้ยน
+    await new Promise(r => setTimeout(r, 500));
+
+    // 🔥 ใช้ ID TOKEN (สำคัญ)
+    const idToken = liff.getDecodedIDToken();
+
+    if (!idToken || !idToken.sub) {
+      throw new Error("No userId");
+    }
+
     const profile = await liff.getProfile();
 
-    lineUser = profile;
-    badge.innerHTML = `👤 ${profile.displayName}`;
+    lineUser = {
+      userId: idToken.sub,
+      displayName: profile.displayName
+    };
+
+    console.log("USER:", lineUser);
+
+    badge.innerHTML = `
+      👤 ${lineUser.displayName}<br>
+      🆔 ${lineUser.userId.substring(0,10)}
+    `;
 
   }catch(err){
     console.warn("LIFF ERROR → relogin", err);
@@ -141,11 +150,11 @@ async function submitOrder(){
   const data = await res.json();
 
   if (data.status==="success"){
-    alert("✅ สั่งซื้อสำเร็จ");
+    alert("✅ สำเร็จ");
     cart=[];
     updateCart();
   }else{
-    alert("❌ เกิดข้อผิดพลาด");
+    alert("❌ error");
   }
 }
 
