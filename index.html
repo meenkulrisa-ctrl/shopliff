@@ -8,90 +8,23 @@
 <script src="https://cdn.jsdelivr.net/npm/@line/liff@2.22.3/dist/liff.min.js"></script>
 
 <style>
-body{
-  font-family:sans-serif;
-  background:#f4f6f9;
-  margin:0;
-  padding:16px;
-}
-
-/* user badge */
-#userBadge{
-  position:fixed;
-  top:10px;
-  right:10px;
-  background:#111;
-  color:#fff;
-  padding:6px 12px;
-  border-radius:20px;
-  font-size:12px;
-}
-
-/* header */
-.header{
-  font-size:22px;
-  font-weight:bold;
-  margin-bottom:12px;
-}
-
-/* product grid */
-.grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:12px;
-}
-
-/* card */
-.card{
-  background:#fff;
-  padding:12px;
-  border-radius:12px;
-  box-shadow:0 4px 10px rgba(0,0,0,0.05);
-}
-
-.card img{
-  width:100%;
-  border-radius:10px;
-}
-
-.title{
-  font-weight:bold;
-  margin-top:6px;
-}
-
-.price{
-  color:#27ae60;
-}
-
-button{
-  width:100%;
-  padding:8px;
-  margin-top:8px;
-  border:none;
-  background:#2ecc71;
-  color:#fff;
-  border-radius:8px;
-}
-
-/* cart */
-.cart{
-  position:fixed;
-  bottom:0;
-  left:0;
-  right:0;
-  background:#fff;
-  padding:12px;
-  box-shadow:0 -2px 10px rgba(0,0,0,0.1);
-}
+body{font-family:sans-serif;background:#f4f6f9;margin:0;padding:16px}
+#userBadge{position:fixed;top:10px;right:10px;background:#000;color:#fff;padding:6px 12px;border-radius:20px;font-size:12px}
+.header{font-size:22px;font-weight:bold;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.card{background:#fff;padding:12px;border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,0.05)}
+.card img{width:100%;border-radius:10px}
+.title{font-weight:bold;margin-top:6px}
+.price{color:#27ae60}
+button{width:100%;padding:8px;margin-top:8px;border:none;background:#2ecc71;color:#fff;border-radius:8px}
+.cart{position:fixed;bottom:0;left:0;right:0;background:#fff;padding:12px;box-shadow:0 -2px 10px rgba(0,0,0,0.1)}
 </style>
 </head>
 
 <body>
 
-<div id="userBadge">...</div>
-
+<div id="userBadge">⏳</div>
 <div class="header">🛒 ShopEasy</div>
-
 <div class="grid" id="productList"></div>
 
 <div class="cart">
@@ -100,58 +33,66 @@ button{
 </div>
 
 <script>
-/* ================= CONFIG ================= */
 const LIFF_ID = "2009816303-JA70bVo1";
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby5xQ-SRRdxcHIugiHRa58hz_cWAwF4-NKCZ61_OyUbHHio_bwLr5BXb38XpcOxq2cC/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwHUEjFTNjvkCjR2UDqfu1bTOr_KGWzOyCEopVa61dXnRnMNsVoM3UTK-vmGterYvGN/exec";
 
-/* ================= STATE ================= */
 let lineUser = null;
 let cart = [];
-let products = [
+
+const products = [
   {id:"P001",name:"ชาไทย",price:40,img:"https://via.placeholder.com/150"},
   {id:"P002",name:"กาแฟเย็น",price:50,img:"https://via.placeholder.com/150"},
   {id:"P003",name:"โกโก้",price:45,img:"https://via.placeholder.com/150"},
   {id:"P004",name:"นมสด",price:35,img:"https://via.placeholder.com/150"}
 ];
 
-/* ================= FAST LIFF ================= */
-async function initLiffFast() {
+/* ===== DEVICE ===== */
+function getDevice(){
+  const ua = navigator.userAgent;
+  if (/android/i.test(ua)) return "Android";
+  if (/iPhone|iPad|iPod/i.test(ua)) return "iOS";
+  return "Other";
+}
+
+/* ===== LIFF ===== */
+async function initLiff(){
   const badge = document.getElementById("userBadge");
 
-  try {
+  try{
     await liff.init({ liffId: LIFF_ID });
 
-    // 🔥 auto login
     if (!liff.isLoggedIn()) {
       liff.login({ redirectUri: location.href });
       return;
     }
 
-    // 🔥 โหลดเร็ว (skip loading)
     const profile = await liff.getProfile();
 
     lineUser = profile;
 
-    badge.innerHTML = "👤 " + profile.displayName;
+    badge.innerHTML = `👤 ${profile.displayName}`;
 
-  } catch (err) {
+  }catch(err){
     console.error(err);
 
-    // fallback
-    lineUser = {
-      userId: "DEMO-" + Date.now(),
-      displayName: "Demo"
-    };
-
-    badge.innerHTML = "⚠️ DEMO";
+    document.body.innerHTML = `
+      <div style="text-align:center;margin-top:50px">
+        <h2>❌ กรุณาเปิดผ่าน LINE</h2>
+        <button onclick="login()">Login</button>
+      </div>
+    `;
   }
 }
 
-/* ================= UI ================= */
-function renderProducts() {
+function login(){
+  liff.login({ redirectUri: location.href });
+}
+
+/* ===== UI ===== */
+function renderProducts(){
   const el = document.getElementById("productList");
 
-  el.innerHTML = products.map(p => `
+  el.innerHTML = products.map(p=>`
     <div class="card">
       <img src="${p.img}">
       <div class="title">${p.name}</div>
@@ -161,71 +102,56 @@ function renderProducts() {
   `).join("");
 }
 
-/* ================= CART ================= */
-function addToCart(id) {
-  const item = products.find(p => p.id === id);
+/* ===== CART ===== */
+function addToCart(id){
+  const item = products.find(p=>p.id===id);
+  const exist = cart.find(i=>i.id===id);
 
-  const existing = cart.find(i => i.id === id);
-
-  if (existing) {
-    existing.qty++;
-  } else {
-    cart.push({...item, qty:1});
-  }
+  if (exist) exist.qty++;
+  else cart.push({...item, qty:1});
 
   updateCart();
 }
 
-function updateCart() {
-  const totalQty = cart.reduce((sum,i)=>sum+i.qty,0);
-  document.getElementById("cartCount").innerText = totalQty;
+function updateCart(){
+  const total = cart.reduce((s,i)=>s+i.qty,0);
+  document.getElementById("cartCount").innerText = total;
 }
 
-/* ================= ORDER ================= */
-async function submitOrder() {
-  if (!lineUser) {
-    alert("ยังไม่พร้อม");
-    return;
-  }
+/* ===== ORDER ===== */
+async function submitOrder(){
+  if (!lineUser) return alert("ยังไม่ login");
+  if (cart.length===0) return alert("ยังไม่มีสินค้า");
 
-  if (cart.length === 0) {
-    alert("ยังไม่มีสินค้า");
-    return;
-  }
-
-  const total = cart.reduce((sum,i)=>sum+(i.price*i.qty),0);
+  const total = cart.reduce((s,i)=>s+(i.price*i.qty),0);
 
   const payload = {
-    orderId: "ORD-" + Date.now(),
-    lineUserId: lineUser.userId,
-    lineDisplayName: lineUser.displayName,
-    total: total,
-    items: JSON.stringify(cart),
-    timestamp: new Date().toISOString()
+    orderId:"ORD-"+Date.now(),
+    lineUserId:lineUser.userId,
+    lineDisplayName:lineUser.displayName,
+    total,
+    items:JSON.stringify(cart),
+    device:getDevice()
   };
 
-  try {
-    const query = new URLSearchParams(payload).toString();
-    const res = await fetch(`${SCRIPT_URL}?${query}`);
-    const data = await res.json();
+  const query = new URLSearchParams(payload).toString();
 
-    if (data.status === "success") {
-      alert("✅ สำเร็จ");
-      cart = [];
-      updateCart();
-    } else {
-      throw new Error(data.message);
-    }
+  const res = await fetch(`${SCRIPT_URL}?${query}`);
+  const data = await res.json();
 
-  } catch (err) {
-    alert("❌ " + err.message);
+  if (data.status==="success"){
+    alert("✅ สำเร็จ");
+    cart=[];
+    updateCart();
+  }else{
+    alert("❌ error");
   }
 }
 
-/* ================= START ================= */
-window.onload = () => {
+/* ===== START ===== */
+window.onload = ()=>{
   renderProducts();
-  initLiffFast();
+  initLiff();
 };
 </script>
 
