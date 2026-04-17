@@ -112,7 +112,7 @@
   const PROMPTPAY_ID = '0832707590';                 // ← เบอร์ / เลขบัญชี PromptPay
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/@line/liff@2.22.3/dist/liff.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@line/liff@2.22.3/dist/liff.min.js" defer></script>
 <script>
 
 /* ===================== สินค้า ===================== */
@@ -432,6 +432,8 @@ function showToast(msg) {
 }
 
 /* ===================== Start ===================== */
-renderProducts();
-initLiff();
+window.onload = () => {
+ // renderProducts();
+  initLiff();
+};
 </script>
