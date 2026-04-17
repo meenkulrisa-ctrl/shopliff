@@ -34,17 +34,10 @@ button{width:100%;padding:8px;margin-top:8px;border:none;background:#2ecc71;colo
 
 <script>
 const LIFF_ID = "2009816303-JA70bVo1";
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwHUEjFTNjvkCjR2UDqfu1bTOr_KGWzOyCEopVa61dXnRnMNsVoM3UTK-vmGterYvGN/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz1hueSO6NCVnAcaNlJrFUoQ77oGlKexcIr3sc_pFqQUYSFafibtNTWcJF9JKSyipsT/exec";
 
 let lineUser = null;
 let cart = [];
-
-const products = [
-  {id:"P001",name:"ชาไทย",price:40,img:"https://via.placeholder.com/150"},
-  {id:"P002",name:"กาแฟเย็น",price:50,img:"https://via.placeholder.com/150"},
-  {id:"P003",name:"โกโก้",price:45,img:"https://via.placeholder.com/150"},
-  {id:"P004",name:"นมสด",price:35,img:"https://via.placeholder.com/150"}
-];
 
 /* ===== DEVICE ===== */
 function getDevice(){
@@ -54,12 +47,23 @@ function getDevice(){
   return "Other";
 }
 
-/* ===== LIFF ===== */
+/* ===== LIFF (แก้ session ค้าง) ===== */
 async function initLiff(){
   const badge = document.getElementById("userBadge");
 
   try{
     await liff.init({ liffId: LIFF_ID });
+
+    // 🔥 รี session ทุก 5 นาที
+    const MAX_AGE = 5 * 60 * 1000;
+    const last = localStorage.getItem("loginTime");
+
+    if (!last || Date.now() - last > MAX_AGE) {
+      localStorage.setItem("loginTime", Date.now());
+      try { liff.logout(); } catch(e){}
+      liff.login({ redirectUri: location.href });
+      return;
+    }
 
     if (!liff.isLoggedIn()) {
       liff.login({ redirectUri: location.href });
@@ -69,26 +73,25 @@ async function initLiff(){
     const profile = await liff.getProfile();
 
     lineUser = profile;
-
     badge.innerHTML = `👤 ${profile.displayName}`;
 
   }catch(err){
-    console.error(err);
+    console.warn("LIFF ERROR → relogin", err);
 
-    document.body.innerHTML = `
-      <div style="text-align:center;margin-top:50px">
-        <h2>❌ กรุณาเปิดผ่าน LINE</h2>
-        <button onclick="login()">Login</button>
-      </div>
-    `;
+    try { liff.logout(); } catch(e){}
+
+    liff.login({ redirectUri: location.href });
   }
 }
 
-function login(){
-  liff.login({ redirectUri: location.href });
-}
+/* ===== PRODUCTS ===== */
+const products = [
+  {id:"P001",name:"ชาไทย",price:40,img:"https://via.placeholder.com/150"},
+  {id:"P002",name:"กาแฟเย็น",price:50,img:"https://via.placeholder.com/150"},
+  {id:"P003",name:"โกโก้",price:45,img:"https://via.placeholder.com/150"},
+  {id:"P004",name:"นมสด",price:35,img:"https://via.placeholder.com/150"}
+];
 
-/* ===== UI ===== */
 function renderProducts(){
   const el = document.getElementById("productList");
 
@@ -134,17 +137,15 @@ async function submitOrder(){
     device:getDevice()
   };
 
-  const query = new URLSearchParams(payload).toString();
-
-  const res = await fetch(`${SCRIPT_URL}?${query}`);
+  const res = await fetch(`${SCRIPT_URL}?${new URLSearchParams(payload)}`);
   const data = await res.json();
 
   if (data.status==="success"){
-    alert("✅ สำเร็จ");
+    alert("✅ สั่งซื้อสำเร็จ");
     cart=[];
     updateCart();
   }else{
-    alert("❌ error");
+    alert("❌ เกิดข้อผิดพลาด");
   }
 }
 
