@@ -3,159 +3,230 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShopEasy</title>
 
-<title>ShopEasy - Production</title>
-
-<!-- ✅ โหลด LIFF -->
-<script src="https://cdn.jsdelivr.net/npm/@line/liff@2.22.3/dist/liff.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@line/liff@2.22.3/dist/liff.min.js"></script>
 
 <style>
-body{font-family:sans-serif;background:#f7f9f7;padding:16px}
-.card{background:#fff;padding:16px;border-radius:12px;margin-bottom:12px}
+body{
+  font-family:sans-serif;
+  background:#f4f6f9;
+  margin:0;
+  padding:16px;
+}
+
+/* user badge */
+#userBadge{
+  position:fixed;
+  top:10px;
+  right:10px;
+  background:#111;
+  color:#fff;
+  padding:6px 12px;
+  border-radius:20px;
+  font-size:12px;
+}
+
+/* header */
+.header{
+  font-size:22px;
+  font-weight:bold;
+  margin-bottom:12px;
+}
+
+/* product grid */
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+/* card */
+.card{
+  background:#fff;
+  padding:12px;
+  border-radius:12px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.05);
+}
+
+.card img{
+  width:100%;
+  border-radius:10px;
+}
+
+.title{
+  font-weight:bold;
+  margin-top:6px;
+}
+
+.price{
+  color:#27ae60;
+}
+
+button{
+  width:100%;
+  padding:8px;
+  margin-top:8px;
+  border:none;
+  background:#2ecc71;
+  color:#fff;
+  border-radius:8px;
+}
+
+/* cart */
+.cart{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  background:#fff;
+  padding:12px;
+  box-shadow:0 -2px 10px rgba(0,0,0,0.1);
+}
 </style>
 </head>
+
 <body>
 
-<div class="card">
-  <h2>🛒 ShopEasy</h2>
-  <div id="user">กำลังโหลด...</div>
-  <div id="status">⏳ กำลังตรวจสอบ LIFF...</div>
-</div>
+<div id="userBadge">...</div>
 
-<div class="card">
-  <button onclick="addCart()">+ เพิ่มสินค้า</button>
-  <div id="cart">ยังไม่มีสินค้า</div>
-</div>
+<div class="header">🛒 ShopEasy</div>
 
-<div class="card">
+<div class="grid" id="productList"></div>
+
+<div class="cart">
+  🧺 <span id="cartCount">0</span> ชิ้น
   <button onclick="submitOrder()">สั่งซื้อ</button>
 </div>
 
 <script>
 /* ================= CONFIG ================= */
 const LIFF_ID = "2009816303-JA70bVo1";
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw7wzSjgmWLxaTuBm1-4t10sYiw4-jq4yzAaetk_oO04BHE9tCbGdyOSfm1S_PIGxi6/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby5xQ-SRRdxcHIugiHRa58hz_cWAwF4-NKCZ61_OyUbHHio_bwLr5BXb38XpcOxq2cC/exec";
 
 /* ================= STATE ================= */
-let cart = 0;
 let lineUser = null;
+let cart = [];
+let products = [
+  {id:"P001",name:"ชาไทย",price:40,img:"https://via.placeholder.com/150"},
+  {id:"P002",name:"กาแฟเย็น",price:50,img:"https://via.placeholder.com/150"},
+  {id:"P003",name:"โกโก้",price:45,img:"https://via.placeholder.com/150"},
+  {id:"P004",name:"นมสด",price:35,img:"https://via.placeholder.com/150"}
+];
 
-/* ================= SAFE LIFF LOADER ================= */
-async function waitForLiff(maxRetry = 20) {
-  let retry = 0;
-
-  while (typeof liff === "undefined" && retry < maxRetry) {
-    console.log("⏳ waiting liff...");
-    await new Promise(r => setTimeout(r, 300));
-    retry++;
-  }
-
-  if (typeof liff === "undefined") {
-    throw new Error("LIFF failed to load");
-  }
-}
-
-/* ================= LIFF INIT ================= */
-async function initLiffSafe() {
-  const userEl = document.getElementById("user");
-  const statusEl = document.getElementById("status");
+/* ================= FAST LIFF ================= */
+async function initLiffFast() {
+  const badge = document.getElementById("userBadge");
 
   try {
-    await waitForLiff();
-
     await liff.init({ liffId: LIFF_ID });
 
+    // 🔥 auto login
     if (!liff.isLoggedIn()) {
-      liff.login();
+      liff.login({ redirectUri: location.href });
       return;
     }
 
+    // 🔥 โหลดเร็ว (skip loading)
     const profile = await liff.getProfile();
 
     lineUser = profile;
 
-    userEl.innerHTML = "👤 " + profile.displayName;
-    statusEl.innerHTML = "✅ พร้อมใช้งาน";
-
-    console.log("✅ LIFF READY", profile);
+    badge.innerHTML = "👤 " + profile.displayName;
 
   } catch (err) {
-    console.error("LIFF FAIL:", err);
+    console.error(err);
 
-    // ✅ fallback (สำคัญมาก)
+    // fallback
     lineUser = {
       userId: "DEMO-" + Date.now(),
-      displayName: "Demo User"
+      displayName: "Demo"
     };
 
-    userEl.innerHTML = "👤 Demo User";
-    statusEl.innerHTML = "⚠️ Demo Mode";
+    badge.innerHTML = "⚠️ DEMO";
   }
 }
 
+/* ================= UI ================= */
+function renderProducts() {
+  const el = document.getElementById("productList");
+
+  el.innerHTML = products.map(p => `
+    <div class="card">
+      <img src="${p.img}">
+      <div class="title">${p.name}</div>
+      <div class="price">฿${p.price}</div>
+      <button onclick="addToCart('${p.id}')">เพิ่ม</button>
+    </div>
+  `).join("");
+}
+
 /* ================= CART ================= */
-function addCart() {
-  cart++;
-  document.getElementById("cart").innerHTML = `สินค้า ${cart} ชิ้น`;
+function addToCart(id) {
+  const item = products.find(p => p.id === id);
+
+  const existing = cart.find(i => i.id === id);
+
+  if (existing) {
+    existing.qty++;
+  } else {
+    cart.push({...item, qty:1});
+  }
+
+  updateCart();
+}
+
+function updateCart() {
+  const totalQty = cart.reduce((sum,i)=>sum+i.qty,0);
+  document.getElementById("cartCount").innerText = totalQty;
 }
 
 /* ================= ORDER ================= */
 async function submitOrder() {
   if (!lineUser) {
-    alert("ระบบยังไม่พร้อม");
+    alert("ยังไม่พร้อม");
     return;
   }
+
+  if (cart.length === 0) {
+    alert("ยังไม่มีสินค้า");
+    return;
+  }
+
+  const total = cart.reduce((sum,i)=>sum+(i.price*i.qty),0);
 
   const payload = {
     orderId: "ORD-" + Date.now(),
     lineUserId: lineUser.userId,
     lineDisplayName: lineUser.displayName,
-    total: cart,
+    total: total,
+    items: JSON.stringify(cart),
     timestamp: new Date().toISOString()
   };
 
   try {
     const query = new URLSearchParams(payload).toString();
-
     const res = await fetch(`${SCRIPT_URL}?${query}`);
-
     const data = await res.json();
 
-    console.log("ORDER RESULT:", data);
-
     if (data.status === "success") {
-      alert("✅ สั่งซื้อสำเร็จ");
-      cart = 0;
-      document.getElementById("cart").innerHTML = "ยังไม่มีสินค้า";
+      alert("✅ สำเร็จ");
+      cart = [];
+      updateCart();
     } else {
       throw new Error(data.message);
     }
 
   } catch (err) {
-    console.error("ORDER ERROR:", err);
-    alert("❌ เกิดข้อผิดพลาด: " + err.message);
+    alert("❌ " + err.message);
   }
 }
 
 /* ================= START ================= */
-window.addEventListener('load', async () => {
+window.onload = () => {
   renderProducts();
-
-  // รอให้ liff โหลดจริง
-  let retry = 0;
-  while (typeof liff === 'undefined' && retry < 10) {
-    await new Promise(r => setTimeout(r, 300));
-    retry++;
-  }
-
-  if (typeof liff === 'undefined') {
-    console.error("❌ LIFF not loaded");
-    document.getElementById('liff-status').innerHTML = '❌ LIFF โหลดไม่สำเร็จ';
-    return;
-  }
-
-  initLiff();
-});
+  initLiffFast();
+};
 </script>
 
 </body>
