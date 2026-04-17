@@ -9,54 +9,77 @@
 
 <style>
 body{font-family:sans-serif;background:#f4f6f9;margin:0;padding:16px}
-#userBadge{position:fixed;top:10px;right:10px;background:#000;color:#fff;padding:6px 12px;border-radius:20px;font-size:12px}
+#userBadge{position:fixed;top:10px;right:10px;background:#000;color:#fff;padding:6px 12px;border-radius:20px}
 .header{font-size:22px;font-weight:bold;margin-bottom:12px}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.card{background:#fff;padding:12px;border-radius:12px}
+.card{background:#fff;padding:12px;border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,0.05)}
 .card img{width:100%;border-radius:10px}
 .price{color:#27ae60}
-button{width:100%;padding:8px;margin-top:8px;background:#2ecc71;color:#fff;border:none;border-radius:8px}
-.cart{position:fixed;bottom:0;left:0;right:0;background:#fff;padding:12px}
-.modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);justify-content:center;align-items:center}
-.modal-content{background:#fff;padding:20px;border-radius:12px;width:90%}
+button{width:100%;padding:8px;margin-top:8px;border:none;background:#2ecc71;color:#fff;border-radius:8px}
+
+.cart{position:fixed;bottom:0;left:0;right:0;background:#fff;padding:12px;box-shadow:0 -2px 10px rgba(0,0,0,0.1)}
+
+.modal{
+  display:none;position:fixed;top:0;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,0.5);
+  justify-content:center;align-items:center;z-index:999;
+}
+.modal-content{
+  background:#fff;padding:20px;border-radius:16px;
+  width:90%;max-width:400px;
+}
+.modal input,.modal textarea{
+  width:100%;padding:10px;margin-top:10px;
+  border-radius:8px;border:1px solid #ddd;
+}
+.cancel{background:#e74c3c}
 </style>
 </head>
 
 <body>
 
-<div id="userBadge">⏳ กำลังโหลด</div>
+<div id="userBadge">⏳</div>
+
 <div class="header">🛒 ShopEasy</div>
+
 <div class="grid" id="productList"></div>
 
 <div class="cart">
-🧺 <span id="cartCount">0</span>
-<button onclick="openModal()">สั่งซื้อ</button>
+  🧺 <span id="cartCount">0</span> ชิ้น
+  <button onclick="openModal()">สั่งซื้อ</button>
 </div>
 
-<!-- FORM -->
+<!-- 🧾 FORM -->
 <div id="orderModal" class="modal">
-<div class="modal-content">
-<input id="name" placeholder="ชื่อ"><br>
-<input id="phone" placeholder="เบอร์"><br>
-<input id="email" placeholder="อีเมล"><br>
-<textarea id="address" placeholder="ที่อยู่"></textarea><br>
-<textarea id="note" placeholder="หมายเหตุ"></textarea>
-<button onclick="confirmOrder()">ยืนยัน</button>
-</div>
+  <div class="modal-content">
+    <h3>📦 ข้อมูลการสั่งซื้อ</h3>
+    <input id="name" placeholder="ชื่อ">
+    <input id="phone" placeholder="เบอร์">
+    <input id="email" placeholder="อีเมล">
+    <textarea id="address" placeholder="ที่อยู่"></textarea>
+    <textarea id="note" placeholder="หมายเหตุ"></textarea>
+
+    <button onclick="confirmOrder()">ยืนยัน</button>
+    <button class="cancel" onclick="closeModal()">ยกเลิก</button>
+  </div>
 </div>
 
-<!-- QR -->
+<!-- 💸 QR -->
 <div id="paymentModal" class="modal">
-<div class="modal-content">
-<img id="qrImg" width="200"><br>
-<input type="file" id="slipFile"><br>
-<button onclick="submitSlip()">ส่งสลิป</button>
-</div>
+  <div class="modal-content">
+    <h3>💸 ชำระเงิน</h3>
+    <img id="qrImg" width="200" style="display:block;margin:auto">
+    <p style="text-align:center">สแกนเพื่อชำระเงิน</p>
+
+    <input type="file" id="slipFile">
+    <button onclick="submitSlip()">📤 ส่งสลิป</button>
+    <button class="cancel" onclick="closePayment()">ยกเลิก</button>
+  </div>
 </div>
 
 <script>
-const LIFF_ID="2009816303-JA70bVo1";
-const SCRIPT_URL="https://script.google.com/macros/s/AKfycbw0BYRuZakJMcaQFNmAjlqQDoOVG3G8_a-rNAG9N48A71zq3AJH7JvXaY6h6tGqSu52/exec";
+const LIFF_ID = "2009816303-JA70bVo1";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyIEXMVK8vGk1YMl6YG-oTcOd1mlEjXkgsM6QJbpPXFcwaIT4zM-i3AEVgr2NWm_OsV/exec";
 
 let lineUser=null;
 let cart=[];
@@ -64,72 +87,75 @@ let currentOrder=null;
 
 /* ===== LIFF ===== */
 async function initLiff(){
-  const badge=document.getElementById("userBadge");
+  await liff.init({ liffId: LIFF_ID });
 
-  try{
-    await liff.init({liffId:LIFF_ID});
-
-    if(!liff.isLoggedIn()){
-      liff.login({redirectUri:location.href});
-      return;
-    }
-
-    const profile=await liff.getProfile();
-    const token=liff.getDecodedIDToken();
-
-    lineUser={
-      userId:token.sub,
-      displayName:profile.displayName
-    };
-
-    badge.innerHTML="👤 "+lineUser.displayName;
-
-  }catch(err){
-    console.error(err);
-
-    // 🔥 fallback กันพัง
-    lineUser={
-      userId:"DEMO-"+Date.now(),
-      displayName:"Demo User"
-    };
-
-    badge.innerHTML="⚠️ Demo Mode";
+  if (!liff.isLoggedIn()) {
+    liff.login();
+    return;
   }
+
+  const profile = await liff.getProfile();
+  const token = liff.getDecodedIDToken();
+
+  lineUser = {
+    userId: token.sub,
+    displayName: profile.displayName
+  };
+
+  userBadge.innerHTML = "👤 " + lineUser.displayName;
 }
 
 /* ===== PRODUCTS ===== */
-const products=[
-{id:"P001",name:"ชาไทย",price:40,img:"https://picsum.photos/200"},
-{id:"P002",name:"กาแฟ",price:50,img:"https://picsum.photos/201"}
+const products = [
+  {id:"P001",name:"ชาไทย",price:40,img:"https://picsum.photos/200"},
+  {id:"P002",name:"กาแฟ",price:50,img:"https://picsum.photos/201"},
+  {id:"P003",name:"โกโก้",price:45,img:"https://picsum.photos/202"}
 ];
 
 function renderProducts(){
-  productList.innerHTML=products.map(p=>`
-  <div class="card">
-    <img src="${p.img}">
-    <div>${p.name}</div>
-    <div class="price">฿${p.price}</div>
-    <button onclick="add('${p.id}')">เพิ่ม</button>
-  </div>`).join("");
+  productList.innerHTML = products.map(p=>`
+    <div class="card">
+      <img src="${p.img}">
+      <div>${p.name}</div>
+      <div class="price">฿${p.price}</div>
+      <button onclick="addToCart('${p.id}')">เพิ่ม</button>
+    </div>
+  `).join("");
 }
 
 /* ===== CART ===== */
-function add(id){
-  const p=products.find(x=>x.id===id);
-  const f=cart.find(x=>x.id===id);
-  if(f)f.qty++;else cart.push({...p,qty:1});
-  cartCount.innerText=cart.reduce((s,i)=>s+i.qty,0);
+function addToCart(id){
+  const item = products.find(p=>p.id===id);
+  const exist = cart.find(i=>i.id===id);
+
+  if (exist) exist.qty++;
+  else cart.push({...item,qty:1});
+
+  cartCount.innerText = cart.reduce((s,i)=>s+i.qty,0);
 }
 
+/* ===== MODAL ===== */
 function openModal(){
+  if(cart.length===0) return alert("ยังไม่มีสินค้า");
   orderModal.style.display="flex";
+}
+function closeModal(){
+  orderModal.style.display="none";
+}
+function closePayment(){
+  paymentModal.style.display="none";
+}
+
+/* ===== QR ===== */
+function generateQR(amount){
+  return `https://promptpay.io/0812345678/${amount}`;
 }
 
 /* ===== CONFIRM ===== */
 function confirmOrder(){
-  const total=cart.reduce((s,i)=>s+(i.price*i.qty),0);
+  const total = cart.reduce((s,i)=>s+(i.price*i.qty),0);
 
-  currentOrder={
+  currentOrder = {
     orderId:"ORD-"+Date.now(),
     name:name.value,
     phone:phone.value,
@@ -140,22 +166,23 @@ function confirmOrder(){
     items:cart
   };
 
-  orderModal.style.display="none";
+  closeModal();
+
   paymentModal.style.display="flex";
-  qrImg.src=`https://promptpay.io/0812345678/${total}`;
+  qrImg.src = generateQR(total);
 }
 
 /* ===== UPLOAD ===== */
-function submitSlip(){
-  const file=slipFile.files[0];
-  if(!file)return alert("แนบสลิป");
+async function submitSlip(){
+  const file = slipFile.files[0];
+  if (!file) return alert("แนบสลิป");
 
-  const reader=new FileReader();
+  const reader = new FileReader();
 
-  reader.onload=async ()=>{
-    const base64=reader.result.split(",")[1];
+  reader.onload = async ()=>{
+    const base64 = reader.result.split(",")[1];
 
-    const payload={
+    const payload = {
       ...currentOrder,
       lineUserId:lineUser.userId,
       lineDisplayName:lineUser.displayName,
@@ -164,19 +191,16 @@ function submitSlip(){
       status:"pending"
     };
 
-await fetch(SCRIPT_URL,{
-  method:"POST",
-  mode:"no-cors", // 🔥 ตัวแก้
-  body:JSON.stringify(payload)
-});
+    const res = await fetch(SCRIPT_URL,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(payload)
+    });
 
-alert("✅ ส่งสำเร็จ");
-location.reload();
-
-    const data=await res.json();
+    const data = await res.json();
 
     if(data.status==="success"){
-      alert("✅ สำเร็จ");
+      alert("✅ ส่งสลิปแล้ว");
       location.reload();
     }else{
       alert("❌ error");
@@ -187,7 +211,7 @@ location.reload();
 }
 
 /* ===== START ===== */
-window.onload=()=>{
+window.onload = ()=>{
   renderProducts();
   initLiff();
 };
