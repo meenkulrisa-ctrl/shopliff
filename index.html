@@ -52,18 +52,18 @@ async function initLiff(){
   const badge = document.getElementById("userBadge");
 
   try{
+    badge.innerHTML = "⏳ กำลังเชื่อมต่อ...";
+
     await liff.init({ liffId: LIFF_ID });
 
-    // 🔥 บังคับ login
     if (!liff.isLoggedIn()) {
       liff.login({ redirectUri: location.href });
       return;
     }
 
-    // 🔥 กัน session เพี้ยน
+    // 🔥 รอ session เสถียร
     await new Promise(r => setTimeout(r, 500));
 
-    // 🔥 ใช้ ID TOKEN (สำคัญ)
     const idToken = liff.getDecodedIDToken();
 
     if (!idToken || !idToken.sub) {
@@ -77,19 +77,18 @@ async function initLiff(){
       displayName: profile.displayName
     };
 
-    console.log("USER:", lineUser);
+    badge.innerHTML = `👤 ${lineUser.displayName}`;
 
-    badge.innerHTML = `
-      👤 ${lineUser.displayName}<br>
-      🆔 ${lineUser.userId.substring(0,10)}
-    `;
+    console.log("USER OK:", lineUser);
 
   }catch(err){
-    console.warn("LIFF ERROR → relogin", err);
+    console.error("LIFF FAIL:", err);
 
     try { liff.logout(); } catch(e){}
 
-    liff.login({ redirectUri: location.href });
+    setTimeout(()=>{
+      liff.login({ redirectUri: location.href });
+    }, 500);
   }
 }
 
@@ -159,8 +158,22 @@ async function submitOrder(){
 }
 
 /* ===== START ===== */
-window.onload = ()=>{
+window.onload = async () => {
   renderProducts();
+
+  let retry = 0;
+
+  // 🔥 รอ liff โหลดจริง
+  while (typeof liff === "undefined" && retry < 20) {
+    await new Promise(r => setTimeout(r, 300));
+    retry++;
+  }
+
+  if (typeof liff === "undefined") {
+    document.getElementById("userBadge").innerHTML = "❌ LIFF load fail";
+    return;
+  }
+
   initLiff();
 };
 </script>
