@@ -108,7 +108,7 @@
      ============================================================ -->
 <script>
   const LIFF_ID      = '2009816303-Setndv8w';       // ← LIFF ID ของคุณ
-  const SCRIPT_URL   = 'https://script.google.com/macros/s/AKfycbznfe8GElQ_obDHnnrSt7mUuBecNGY35pcHpfe31SQDsIS5nuxQONlIobwgMgWCXtRL/exec';
+  const SCRIPT_URL   = 'https://script.google.com/macros/s/AKfycbwCzvJsTQK2Cndnoy7Ls9frd59v4KJDGgxJTXZnTSIweaKvxfkRXUplqQM6nNHs-9ZQ/exec';
   const PROMPTPAY_ID = '0832707590';                 // ← เบอร์ / เลขบัญชี PromptPay
 </script>
 
@@ -136,6 +136,12 @@ async function initLiff() {
   const statusEl = document.getElementById('liff-status');
   const pillEl   = document.getElementById('user-pill');
 
+  // ✅ รอให้ liff โหลดก่อน
+  if (typeof liff === "undefined") {
+    setTimeout(initLiff, 300);
+    return;
+  }
+
   try {
     await liff.init({ liffId: LIFF_ID });
 
@@ -146,34 +152,24 @@ async function initLiff() {
 
     const profile = await liff.getProfile();
     lineUser = {
-      userId:      profile.userId,
+      userId: profile.userId,
       displayName: profile.displayName,
-      pictureUrl:  profile.pictureUrl || null
+      pictureUrl: profile.pictureUrl || null
     };
 
-    statusEl.innerHTML          = '✅ LINE LIFF พร้อม';
-    statusEl.style.background   = '#E1F5EE';
-    statusEl.style.color        = '#0F6E56';
+    statusEl.innerHTML = '✅ LINE LIFF พร้อม';
+    statusEl.style.background = '#E1F5EE';
+    statusEl.style.color = '#0F6E56';
 
     pillEl.innerHTML = `
       ${lineUser.pictureUrl
-        ? `<img src="${lineUser.pictureUrl}" class="user-avatar" onerror="this.style.display='none'">`
-        : '<span style="font-size:14px">👤</span>'}
+        ? `<img src="${lineUser.pictureUrl}" class="user-avatar">`
+        : '👤'}
       <span class="user-name-small">${lineUser.displayName}</span>`;
 
   } catch (err) {
-    // ✅ แก้บั๊ก: แสดง error ใน UI แทน alert
-    console.error('LIFF Error:', err);
-    statusEl.innerHTML        = '⚠️ Demo Mode';
-    statusEl.style.background = '#FAEEDA';
-    statusEl.style.color      = '#BA7517';
-
-    lineUser = {
-      userId:      'DEMO-' + Math.random().toString(36).substr(2,6).toUpperCase(),
-      displayName: 'Demo User',
-      pictureUrl:  null
-    };
-    pillEl.innerHTML = '<span style="font-size:14px">👤</span><span class="user-name-small">Demo Mode</span>';
+    console.error(err);
+    statusEl.innerHTML = '⚠️ Demo Mode';
   }
 }
 
