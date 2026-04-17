@@ -107,12 +107,12 @@
      ⚙️ CONFIG — แก้ค่าตรงนี้เท่านั้น
      ============================================================ -->
 <script>
-  const LIFF_ID      = '2009816303-Setndv8w';       // ← LIFF ID ของคุณ
-  const SCRIPT_URL   = 'https://script.google.com/macros/s/AKfycbw1IGp8TOTncMuWS9dw-yBM1jOzWcMCiA5N83ZWX9_p9uWHpRyXnXUEIMD9TgLBGzjN/exec';
+  const LIFF_ID      = '2009816303-JA70bVo1';       // ← LIFF ID ของคุณ
+  const SCRIPT_URL   = 'https://script.google.com/macros/s/AKfycbw7wzSjgmWLxaTuBm1-4t10sYiw4-jq4yzAaetk_oO04BHE9tCbGdyOSfm1S_PIGxi6/exec';
   const PROMPTPAY_ID = '0832707590';                 // ← เบอร์ / เลขบัญชี PromptPay
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/@line/liff@2.22.3/dist/liff.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@line/liff@2.22.3/dist/liff.min.js"></script>
 <script>
 
 /* ===================== สินค้า ===================== */
@@ -430,8 +430,8 @@ function showToast(msg) {
 }
 
 /* ===================== Start ===================== */
-window.onload = () => {
-  renderProducts();   // ✅ ต้องเปิด
-  initLiff();         // ✅ LIFF ทำงาน
-};
+window.addEventListener('load', () => {
+  renderProducts();
+  initLiff();
+});
 </script>
