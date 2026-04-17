@@ -136,30 +136,31 @@ async function initLiff() {
   const statusEl = document.getElementById('liff-status');
   const pillEl   = document.getElementById('user-pill');
 
-  // ✅ รอให้ liff โหลดก่อน
-  if (typeof liff === "undefined") {
-    setTimeout(initLiff, 300);
-    return;
-  }
-
   try {
+    console.log("START");
+
     await liff.init({ liffId: LIFF_ID });
+    console.log("INIT OK");
+
+    console.log("isLoggedIn:", liff.isLoggedIn());
 
     if (!liff.isLoggedIn()) {
+      console.log("NOT LOGIN → redirect");
       liff.login();
       return;
     }
 
     const profile = await liff.getProfile();
+    console.log("PROFILE:", profile);
+
     lineUser = {
       userId: profile.userId,
       displayName: profile.displayName,
       pictureUrl: profile.pictureUrl || null
     };
 
+    // ✅ แสดงผลบนหน้าเว็บ
     statusEl.innerHTML = '✅ LINE LIFF พร้อม';
-    statusEl.style.background = '#E1F5EE';
-    statusEl.style.color = '#0F6E56';
 
     pillEl.innerHTML = `
       ${lineUser.pictureUrl
@@ -168,8 +169,9 @@ async function initLiff() {
       <span class="user-name-small">${lineUser.displayName}</span>`;
 
   } catch (err) {
-    console.error(err);
-    statusEl.innerHTML = '⚠️ Demo Mode';
+    console.error("LIFF ERROR:", err);
+
+    statusEl.innerHTML = '❌ LIFF ERROR';
   }
 }
 
