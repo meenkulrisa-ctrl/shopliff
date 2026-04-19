@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShopEasy Admin</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0D0D0D;--surface:#161616;--surface2:#1E1E1E;--surface3:#252525;
+  --border:#2E2E2E;--border2:#3A3A3A;
+  --green:#00C896;--green-dim:#00C89620;--green-text:#00C896;
+  --amber:#F5A623;--amber-dim:#F5A62320;--amber-text:#F5A623;
+  --red:#FF4D4D;--red-dim:#FF4D4D20;--red-text:#FF5252;
+  --blue:#4A9EFF;--blue-dim:#4A9EFF20;--blue-text:#4A9EFF;
+  --text:#F0F0F0;--muted:#888;--muted2:#555;
+  --font:'IBM Plex Sans Thai',sans-serif;--mono:'IBM Plex Mono',monospace
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:52px;position:sticky;top:0;z-index:100}
+.topbar-logo{font-size:16px;font-weight:600;letter-spacing:-0.3px;display:flex;align-items:center;gap:8px}
+.topbar-logo span{color:var(--green)}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.badge{padding:3px 8px;border-radius:4px;font-size:11px;font-weight:500;font-family:var(--mono)}
+.badge-green{background:var(--green-dim);color:var(--green-text)}
+.badge-amber{background:var(--amber-dim);color:var(--amber-text)}
+.badge-red{background:var(--red-dim);color:var(--red-text)}
+.badge-blue{background:var(--blue-dim);color:var(--blue-text)}
+.layout{display:flex;height:calc(100vh - 52px)}
+.sidebar{width:200px;background:var(--surface);border-right:1px solid var(--border);padding:16px 0;flex-shrink:0;overflow-y:auto}
+.nav-label{font-size:10px;color:var(--muted2);font-weight:500;letter-spacing:1px;padding:8px 16px 4px;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:8px;padding:8px 16px;cursor:pointer;color:var(--muted);font-size:13px;transition:all 0.15s;border-left:2px solid transparent}
+.nav-item:hover{color:var(--text);background:var(--surface2)}
+.nav-item.active{color:var(--green);background:var(--green-dim);border-left-color:var(--green)}
+.nav-item .icon{font-size:15px;width:18px;text-align:center}
+.main{flex:1;overflow-y:auto;padding:24px}
+.page{display:none}
+.page.active{display:block}
+.page-header{margin-bottom:24px}
+.page-title{font-size:20px;font-weight:600;margin-bottom:4px}
+.page-sub{color:var(--muted);font-size:13px}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px}
+.stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
+.stat-value{font-size:24px;font-weight:600;font-family:var(--mono);line-height:1}
+.stat-value.green{color:var(--green)}
+.stat-value.amber{color:var(--amber)}
+.stat-value.red{color:var(--red)}
+.stat-value.blue{color:var(--blue)}
+.stat-delta{font-size:11px;color:var(--muted);margin-top:4px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:8px}
+.card-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:13px;font-weight:500}
+.card-body{padding:16px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{font-size:11px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:0.5px;padding:8px 12px;text-align:left;border-bottom:1px solid var(--border)}
+td{padding:10px 12px;font-size:13px;border-bottom:1px solid var(--border2);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface2)}
+.uid{font-family:var(--mono);font-size:11px;color:var(--muted);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.btn{padding:7px 14px;border-radius:6px;font-size:12px;font-family:var(--font);cursor:pointer;border:none;font-weight:500;transition:all 0.15s;display:inline-flex;align-items:center;gap:5px}
+.btn-sm{padding:4px 10px;font-size:11px}
+.btn-primary{background:var(--green);color:#000}
+.btn-primary:hover{background:#00DDAA}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border2)}
+.btn-ghost:hover{color:var(--text);border-color:var(--border2)}
+.btn-danger{background:var(--red-dim);color:var(--red-text);border:1px solid #FF4D4D30}
+.btn-danger:hover{background:#FF4D4D30}
+.btn-blue{background:var(--blue-dim);color:var(--blue-text);border:1px solid #4A9EFF30}
+.btn-blue:hover{background:#4A9EFF30}
+.btn-amber{background:var(--amber-dim);color:var(--amber-text);border:1px solid #F5A62330}
+.btn-amber:hover{background:#F5A62330}
+.input{background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:8px 12px;border-radius:6px;font-size:13px;font-family:var(--font);outline:none;width:100%;transition:border-color 0.15s}
+.input:focus{border-color:var(--green)}
+.input::placeholder{color:var(--muted2)}
+.select{background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:8px 12px;border-radius:6px;font-size:13px;font-family:var(--font);outline:none;cursor:pointer}
+.select:focus{border-color:var(--green)}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:11px;color:var(--muted);margin-bottom:5px;font-weight:500;text-transform:uppercase;letter-spacing:0.3px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.2s}
+.modal-overlay.show{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;width:440px;max-height:90vh;overflow-y:auto;padding:24px;transform:translateY(10px);transition:transform 0.2s}
+.modal-overlay.show .modal{transform:translateY(0)}
+.modal-title{font-size:15px;font-weight:600;margin-bottom:4px}
+.modal-sub{font-size:12px;color:var(--muted);margin-bottom:20px}
+.notify-preview{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px;margin:12px 0;font-size:12px;line-height:1.7;color:var(--text);white-space:pre-wrap}
+.divider{height:1px;background:var(--border);margin:20px 0}
+.product-emoji-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-bottom:12px}
+.emoji-btn{background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:6px;font-size:18px;cursor:pointer;text-align:center;transition:all 0.15s}
+.emoji-btn:hover,.emoji-btn.active{background:var(--green-dim);border-color:var(--green)}
+.tabs{display:flex;gap:2px;background:var(--surface2);border-radius:6px;padding:3px;margin-bottom:20px;width:fit-content}
+.tab{padding:6px 14px;border-radius:4px;font-size:12px;cursor:pointer;color:var(--muted);transition:all 0.15s}
+.tab.active{background:var(--surface3);color:var(--text)}
+.notification-item{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:8px}
+.notif-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.notif-name{font-size:13px;font-weight:500}
+.notif-time{font-size:11px;color:var(--muted);font-family:var(--mono)}
+.notif-msg{font-size:12px;color:var(--muted);line-height:1.6}
+.search-bar{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.filter-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.chip{padding:4px 10px;border-radius:20px;font-size:11px;cursor:pointer;border:1px solid var(--border2);color:var(--muted);transition:all 0.15s}
+.chip.active{background:var(--green-dim);color:var(--green-text);border-color:var(--green)}
+.progress-bar{height:4px;background:var(--surface3);border-radius:2px;overflow:hidden;margin-top:6px}
+.progress-fill{height:100%;background:var(--green);border-radius:2px;transition:width 0.3s}
+.action-row{display:flex;gap:6px;align-items:center}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:12px 16px;font-size:13px;z-index:999;transform:translateY(20px);opacity:0;transition:all 0.2s;max-width:300px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{border-left:3px solid var(--green)}
+.toast.error{border-left:3px solid var(--red)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">🛒 <span>Shop</span>Easy <span style="color:var(--muted);font-weight:400;font-size:13px;margin-left:4px">Admin</span></div>
+  <div class="topbar-right">
+    <span class="badge badge-green" id="sheet-status">● SHEET OK</span>
+    <span class="badge badge-blue" id="line-oa-status">● LINE OA</span>
+    <button class="btn btn-sm btn-ghost" onclick="refreshData()">⟳ Refresh</button>
+    <button class="btn btn-sm btn-primary" onclick="openNotifyModal('broadcast')">📢 Broadcast</button>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="nav-label">Overview</div>
+    <div class="nav-item active" onclick="showPage('dashboard')"><span class="icon">◈</span> Dashboard</div>
+    <div class="nav-item" onclick="showPage('orders')"><span class="icon">📦</span> Orders</div>
+    <div class="nav-item" onclick="showPage('shipping')"><span class="icon">🚚</span> Shipping</div>
+    <div class="nav-label">Catalog</div>
+    <div class="nav-item" onclick="showPage('products')"><span class="icon">🏷</span> Products</div>
+    <div class="nav-label">LINE</div>
+    <div class="nav-item" onclick="showPage('notifications')"><span class="icon">🔔</span> Notifications</div>
+    <div class="nav-item" onclick="showPage('slipok')"><span class="icon">✅</span> SlipOk Logs</div>
+    <div class="nav-label">Settings</div>
+    <div class="nav-item" onclick="showPage('settings')"><span class="icon">⚙</span> Settings</div>
+  </div>
+
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <div class="page-title">Dashboard</div>
+        <div class="page-sub">ภาพรวมธุรกิจวันนี้</div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">ออเดอร์วันนี้</div><div class="stat-value blue" id="stat-today">–</div><div class="stat-delta">รายการทั้งหมด</div></div>
+        <div class="stat-card"><div class="stat-label">รอชำระ</div><div class="stat-value amber" id="stat-pending">–</div><div class="stat-delta">รอยืนยัน slip</div></div>
+        <div class="stat-card"><div class="stat-label">ยืนยันแล้ว</div><div class="stat-value green" id="stat-paid">–</div><div class="stat-delta">ชำระแล้ว</div></div>
+        <div class="stat-card"><div class="stat-label">ยอดรวม (บาท)</div><div class="stat-value green" id="stat-revenue">–</div><div class="stat-delta">วันนี้</div></div>
+      </div>
+      <div class="grid-2" style="gap:16px">
+        <div class="card">
+          <div class="card-header"><div class="card-title">📦 ออเดอร์ล่าสุด</div><button class="btn btn-sm btn-ghost" onclick="showPage('orders')">ดูทั้งหมด →</button></div>
+          <div class="card-body" id="recent-orders-list"><div style="color:var(--muted);font-size:13px">กำลังโหลด...</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">🔔 การแจ้งเตือนล่าสุด</div><button class="btn btn-sm btn-ghost" onclick="showPage('notifications')">ดูทั้งหมด →</button></div>
+          <div class="card-body" id="recent-notifs-list"><div style="color:var(--muted);font-size:13px">กำลังโหลด...</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ORDERS -->
+    <div class="page" id="page-orders">
+      <div class="page-header">
+        <div class="page-title">Orders</div>
+        <div class="page-sub">จัดการออเดอร์ทั้งหมด</div>
+      </div>
+      <div class="search-bar">
+        <input class="input" style="max-width:260px" placeholder="🔍 ค้นหา Order ID / ชื่อ / เบอร์" id="order-search" oninput="filterOrders()">
+      </div>
+      <div class="filter-chips">
+        <div class="chip active" onclick="setFilter(this,'all')">ทั้งหมด</div>
+        <div class="chip" onclick="setFilter(this,'pending')">รอชำระ</div>
+        <div class="chip" onclick="setFilter(this,'slip_uploaded')">รอตรวจ Slip</div>
+        <div class="chip" onclick="setFilter(this,'paid')">ชำระแล้ว</div>
+        <div class="chip" onclick="setFilter(this,'shipped')">จัดส่งแล้ว</div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Order ID</th><th>ลูกค้า</th><th>LINE UID</th><th>ยอด</th><th>สถานะ</th><th>วันที่</th><th>Actions</th></tr></thead>
+            <tbody id="orders-table"><tr><td colspan="7" style="text-align:center;color:var(--muted)">กำลังโหลด...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SHIPPING -->
+    <div class="page" id="page-shipping">
+      <div class="page-header">
+        <div class="page-title">Shipping</div>
+        <div class="page-sub">จัดการการจัดส่งและส่งแจ้งเตือน LINE</div>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-header"><div class="card-title">📦 ออเดอร์ที่ชำระแล้ว — รอจัดส่ง</div></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Order ID</th><th>ชื่อลูกค้า</th><th>ที่อยู่</th><th>ยอด</th><th>เลขพัสดุ</th><th>ขนส่ง</th><th>Actions</th></tr></thead>
+            <tbody id="shipping-table"><tr><td colspan="7" style="text-align:center;color:var(--muted)">กำลังโหลด...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRODUCTS -->
+    <div class="page" id="page-products">
+      <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div class="page-title">Products</div>
+          <div class="page-sub">จัดการสินค้าในร้าน</div>
+        </div>
+        <button class="btn btn-primary" onclick="openProductModal()">+ เพิ่มสินค้า</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px" id="products-grid">
+        <div style="color:var(--muted);font-size:13px">กำลังโหลด...</div>
+      </div>
+    </div>
+
+    <!-- NOTIFICATIONS -->
+    <div class="page" id="page-notifications">
+      <div class="page-header">
+        <div class="page-title">Notifications</div>
+        <div class="page-sub">ประวัติการแจ้งเตือน LINE OA</div>
+      </div>
+      <div id="notif-log"><div style="color:var(--muted);font-size:13px">กำลังโหลด...</div></div>
+    </div>
+
+    <!-- SLIPOK LOGS -->
+    <div class="page" id="page-slipok">
+      <div class="page-header">
+        <div class="page-title">SlipOk Verification Logs</div>
+        <div class="page-sub">ประวัติการตรวจสอบ slip ด้วย SlipOk API</div>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Order ID</th><th>วันที่ตรวจ</th><th>ยอดเงิน</th><th>ผู้โอน</th><th>ผลการตรวจ</th><th>Ref</th></tr></thead>
+            <tbody id="slipok-table"><tr><td colspan="6" style="text-align:center;color:var(--muted)">กำลังโหลด...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="page" id="page-settings">
+      <div class="page-header">
+        <div class="page-title">Settings</div>
+        <div class="page-sub">ตั้งค่าระบบ</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="card">
+          <div class="card-header"><div class="card-title">🔑 API Keys</div></div>
+          <div class="card-body">
+            <div class="field"><label>LINE Channel Access Token</label><input class="input" type="password" id="s-line-token" placeholder="Channel Access Token…"></div>
+            <div class="field"><label>SlipOk API Key</label><input class="input" type="password" id="s-slipok-key" placeholder="slipok_…"></div>
+            <div class="field"><label>PromptPay ID</label><input class="input" id="s-promptpay" placeholder="0812345678"></div>
+            <button class="btn btn-primary" onclick="saveSettings()">บันทึก</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">📩 LINE Message Templates</div></div>
+          <div class="card-body">
+            <div class="field">
+              <label>เมื่อชำระเงินสำเร็จ</label>
+              <textarea class="input" id="tmpl-paid" rows="4" style="resize:vertical">✅ ยืนยันชำระเงินสำเร็จ!
+ออเดอร์: {{orderId}}
+ยอด: ฿{{total}}
+เราจะจัดส่งให้เร็วๆ นี้ ขอบคุณครับ/ค่ะ 🙏</textarea>
+            </div>
+            <div class="field">
+              <label>เมื่อจัดส่งแล้ว</label>
+              <textarea class="input" id="tmpl-ship" rows="5" style="resize:vertical">🚚 จัดส่งสินค้าแล้ว!
+ออเดอร์: {{orderId}}
+ขนส่ง: {{carrier}}
+เลขพัสดุ: {{trackingNo}}
+ติดตามสินค้าได้ที่: {{trackingUrl}}</textarea>
+            </div>
+            <button class="btn btn-primary" onclick="saveTemplates()">บันทึก Template</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModalIfBg(event)">
+  <div class="modal" id="modal-box">
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ============================================================
+     CONFIG — แก้ค่าตรงนี้
+============================================================ -->
+<script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbztpj2ItaFOZgkseRARjEk6QARXfJYXb61qquKK_0l-xyiwAjKZ3CWPGOgFqlj7QkYf/exec';
+const ADMIN_KEY  = 'shopeasy-admin-2024'; // ← เปลี่ยนเป็น key ของคุณ
+
+// ===== Local Storage Config =====
+function cfg(key, val) {
+  if (val !== undefined) localStorage.setItem('sa_' + key, val);
+  return localStorage.getItem('sa_' + key) || '';
+}
+
+// ===== State =====
+let orders = [], products = [], notifications = [], slipLogs = [];
+let orderFilter = 'all', orderSearch = '';
+
+// ===== Navigation =====
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.textContent.trim().toLowerCase().includes(id.substring(0,4))) n.classList.add('active');
+  });
+  if (id === 'orders') renderOrders();
+  if (id === 'shipping') renderShipping();
+  if (id === 'products') renderProducts();
+  if (id === 'notifications') renderNotifications();
+  if (id === 'slipok') renderSlipokLogs();
+  if (id === 'settings') loadSettings();
+}
+
+// ===== API Call to Apps Script =====
+async function api(action, params = {}) {
+  const p = new URLSearchParams({ action, adminKey: ADMIN_KEY, ...params });
+  const r = await fetch(`${SCRIPT_URL}?${p}`);
+  return r.json();
+}
+
+// ===== Load Data =====
+async function loadAll() {
+  try {
+    const r = await api('getOrders');
+    if (r.orders) orders = r.orders;
+    if (r.products) products = r.products;
+    if (r.notifications) notifications = r.notifications;
+    if (r.slipLogs) slipLogs = r.slipLogs;
+    updateStats();
+    renderRecentOrders();
+    renderRecentNotifs();
+  } catch(e) {
+    showToast('โหลดข้อมูลไม่ได้: ' + e.message, 'error');
+  }
+}
+
+function refreshData() { loadAll(); showToast('รีเฟรชแล้ว', 'success'); }
+
+// ===== Stats =====
+function updateStats() {
+  const today = new Date().toISOString().split('T')[0];
+  const todayOrders = orders.filter(o => o.timestamp && o.timestamp.startsWith(today));
+  document.getElementById('stat-today').textContent  = todayOrders.length;
+  document.getElementById('stat-pending').textContent = orders.filter(o => o.status === 'pending').length;
+  document.getElementById('stat-paid').textContent    = orders.filter(o => o.status === 'paid').length;
+  const rev = todayOrders.filter(o => o.status === 'paid').reduce((s, o) => s + Number(o.total || 0), 0);
+  document.getElementById('stat-revenue').textContent = rev.toLocaleString();
+}
+
+// ===== Render Orders Table =====
+function filterOrders() {
+  orderSearch = document.getElementById('order-search').value.toLowerCase();
+  renderOrders();
+}
+function setFilter(el, f) {
+  document.querySelectorAll('.filter-chips .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  orderFilter = f;
+  renderOrders();
+}
+
+function renderOrders() {
+  let list = orders;
+  if (orderFilter !== 'all') list = list.filter(o => o.status === orderFilter);
+  if (orderSearch) list = list.filter(o =>
+    (o.orderId||'').toLowerCase().includes(orderSearch) ||
+    (o.name||'').toLowerCase().includes(orderSearch) ||
+    (o.phone||'').includes(orderSearch)
+  );
+  const tbody = document.getElementById('orders-table');
+  if (!list.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted)">ไม่พบออเดอร์</td></tr>'; return; }
+  tbody.innerHTML = list.map(o => `
+    <tr>
+      <td><span style="font-family:var(--mono);font-size:12px;color:var(--blue)">${o.orderId}</span></td>
+      <td>${o.name}<br><span style="font-size:11px;color:var(--muted)">${o.phone}</span></td>
+      <td><span class="uid">${o.lineUserId||'–'}</span></td>
+      <td style="font-family:var(--mono)">฿${Number(o.total||0).toLocaleString()}</td>
+      <td>${statusBadge(o.status)}</td>
+      <td style="font-size:11px;color:var(--muted)">${fmtDate(o.timestamp)}</td>
+      <td>
+        <div class="action-row">
+          ${o.status==='pending'||o.status==='slip_uploaded' ? `<button class="btn btn-sm btn-ghost" onclick="viewSlip('${o.orderId}')">📎 Slip</button>` : ''}
+          ${o.status==='paid'?`<button class="btn btn-sm btn-blue" onclick="openShipModal('${o.orderId}')">🚚 ส่ง</button>`:''}
+          <button class="btn btn-sm btn-ghost" onclick="openNotifyModal('single','${o.orderId}','${o.lineUserId}')">🔔</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function renderRecentOrders() {
+  const list = [...orders].reverse().slice(0, 5);
+  document.getElementById('recent-orders-list').innerHTML = list.length ? list.map(o => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border2)">
+      <div>
+        <div style="font-size:12px;font-family:var(--mono);color:var(--blue)">${o.orderId}</div>
+        <div style="font-size:12px;color:var(--muted)">${o.name} · ฿${Number(o.total||0).toLocaleString()}</div>
+      </div>
+      ${statusBadge(o.status)}
+    </div>`).join('') : '<div style="color:var(--muted);font-size:13px">ยังไม่มีออเดอร์</div>';
+}
+
+function renderRecentNotifs() {
+  const list = [...notifications].reverse().slice(0, 4);
+  document.getElementById('recent-notifs-list').innerHTML = list.length ? list.map(n => `
+    <div style="padding:8px 0;border-bottom:1px solid var(--border2)">
+      <div style="display:flex;justify-content:space-between">
+        <span style="font-size:12px">${n.type||'–'}</span>
+        <span style="font-size:11px;color:var(--muted);font-family:var(--mono)">${fmtDate(n.timestamp)}</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted)">${n.orderId||''}</div>
+    </div>`).join('') : '<div style="color:var(--muted);font-size:13px">ยังไม่มีการแจ้งเตือน</div>';
+}
+
+// ===== Products =====
+function renderProducts() {
+  const grid = document.getElementById('products-grid');
+  if (!products.length) { grid.innerHTML = '<div style="color:var(--muted);font-size:13px">ยังไม่มีสินค้า</div>'; return; }
+  grid.innerHTML = products.map(p => `
+    <div class="card" style="padding:16px">
+      <div style="font-size:32px;text-align:center;margin-bottom:8px">${p.emoji}</div>
+      <div style="font-size:13px;font-weight:500;margin-bottom:2px">${p.name}</div>
+      <div style="font-family:var(--mono);color:var(--green);margin-bottom:2px">฿${Number(p.price||0).toLocaleString()}</div>
+      <div style="font-size:11px;color:var(--muted)">stock: ${p.stock}</div>
+      <div style="display:flex;gap:6px;margin-top:10px">
+        <button class="btn btn-sm btn-ghost" style="flex:1" onclick="openProductModal(${JSON.stringify(p).replace(/"/g,'&quot;')})">แก้ไข</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteProduct('${p.id}')">ลบ</button>
+      </div>
+    </div>`).join('');
+}
+
+// ===== Shipping =====
+function renderShipping() {
+  const list = orders.filter(o => o.status === 'paid' || o.status === 'shipping');
+  const tbody = document.getElementById('shipping-table');
+  if (!list.length) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted)">ไม่มีออเดอร์รอจัดส่ง</td></tr>'; return; }
+  tbody.innerHTML = list.map(o => `
+    <tr>
+      <td><span style="font-family:var(--mono);font-size:12px;color:var(--blue)">${o.orderId}</span></td>
+      <td>${o.name}<br><span style="font-size:11px;color:var(--muted)">${o.phone}</span></td>
+      <td style="font-size:12px;max-width:160px">${o.address||'–'}</td>
+      <td style="font-family:var(--mono)">฿${Number(o.total||0).toLocaleString()}</td>
+      <td style="font-family:var(--mono);font-size:12px;color:var(--amber)">${o.trackingNo||'–'}</td>
+      <td>${o.carrier||'–'}</td>
+      <td>
+        ${o.status==='paid'
+          ? `<button class="btn btn-sm btn-blue" onclick="openShipModal('${o.orderId}')">📦 กรอกเลขพัสดุ</button>`
+          : `<span class="badge badge-green">● จัดส่งแล้ว</span>`}
+      </td>
+    </tr>`).join('');
+}
+
+// ===== Notifications Log =====
+function renderNotifications() {
+  const el = document.getElementById('notif-log');
+  if (!notifications.length) { el.innerHTML = '<div style="color:var(--muted)">ยังไม่มีประวัติการแจ้งเตือน</div>'; return; }
+  el.innerHTML = [...notifications].reverse().map(n => `
+    <div class="notification-item">
+      <div class="notif-header">
+        <div class="notif-name">${n.type||'Notification'} — <span style="color:var(--blue);font-family:var(--mono);font-size:12px">${n.orderId||'Broadcast'}</span></div>
+        <div class="notif-time">${fmtDate(n.timestamp)}</div>
+      </div>
+      <div class="notif-msg">${(n.message||'').substring(0,120)}</div>
+      <div style="margin-top:6px">${n.success ? '<span class="badge badge-green">✓ ส่งสำเร็จ</span>' : '<span class="badge badge-red">✗ ส่งไม่สำเร็จ</span>'}</div>
+    </div>`).join('');
+}
+
+// ===== SlipOk Logs =====
+function renderSlipokLogs() {
+  const tbody = document.getElementById('slipok-table');
+  if (!slipLogs.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted)">ยังไม่มี log</td></tr>'; return; }
+  tbody.innerHTML = slipLogs.map(s => `
+    <tr>
+      <td style="font-family:var(--mono);color:var(--blue)">${s.orderId}</td>
+      <td style="font-size:12px;color:var(--muted)">${fmtDate(s.timestamp)}</td>
+      <td style="font-family:var(--mono)">฿${Number(s.amount||0).toLocaleString()}</td>
+      <td>${s.sender||'–'}</td>
+      <td>${s.verified ? '<span class="badge badge-green">✓ PASS</span>' : '<span class="badge badge-red">✗ FAIL</span>'}</td>
+      <td style="font-family:var(--mono);font-size:11px;color:var(--muted)">${s.ref||'–'}</td>
+    </tr>`).join('');
+}
+
+// ===== Modals =====
+function openModalWith(html) {
+  document.getElementById('modal-content').innerHTML = html;
+  document.getElementById('modal-overlay').classList.add('show');
+}
+function closeModal() { document.getElementById('modal-overlay').classList.remove('show'); }
+function closeModalIfBg(e) { if (e.target === document.getElementById('modal-overlay')) closeModal(); }
+
+// Product Modal
+const EMOJIS = ['👕','👖','👟','👜','🧢','🕶️','👗','👔','👒','🧣','🧤','🧥','👛','💼','🎒','🛍️'];
+function openProductModal(p) {
+  const isEdit = !!p;
+  openModalWith(`
+    <div class="modal-title">${isEdit ? '✏️ แก้ไขสินค้า' : '+ เพิ่มสินค้าใหม่'}</div>
+    <div class="modal-sub">${isEdit ? `ID: ${p.id}` : 'สินค้าจะปรากฏในหน้าร้านทันที'}</div>
+    <div class="product-emoji-grid" id="emoji-grid">
+      ${EMOJIS.map(e => `<div class="emoji-btn${p&&p.emoji===e?' active':''}" onclick="selectEmoji(this,'${e}')">${e}</div>`).join('')}
+    </div>
+    <input type="hidden" id="p-emoji" value="${p?p.emoji:'👕'}">
+    <div class="grid-2">
+      <div class="field"><label>ชื่อสินค้า</label><input class="input" id="p-name" value="${p?p.name:''}" placeholder="ชื่อสินค้า"></div>
+      <div class="field"><label>รหัสสินค้า</label><input class="input" id="p-id" value="${p?p.id:''}" placeholder="P007" ${isEdit?'readonly':''}></div>
+    </div>
+    <div class="grid-2">
+      <div class="field"><label>ราคา (บาท)</label><input class="input" id="p-price" type="number" value="${p?p.price:''}" placeholder="0"></div>
+      <div class="field"><label>จำนวน Stock</label><input class="input" id="p-stock" type="number" value="${p?p.stock:''}" placeholder="0"></div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="saveProduct(${isEdit})">
+      ${isEdit ? '💾 บันทึกการแก้ไข' : '+ เพิ่มสินค้า'}
+    </button>
+    <button class="btn btn-ghost" style="width:100%;margin-top:6px" onclick="closeModal()">ยกเลิก</button>`);
+}
+function selectEmoji(el, e) {
+  document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('p-emoji').value = e;
+}
+async function saveProduct(isEdit) {
+  const p = {
+    id: document.getElementById('p-id').value.trim(),
+    name: document.getElementById('p-name').value.trim(),
+    price: Number(document.getElementById('p-price').value),
+    stock: Number(document.getElementById('p-stock').value),
+    emoji: document.getElementById('p-emoji').value
+  };
+  if (!p.id || !p.name || !p.price) { showToast('กรุณากรอกข้อมูลให้ครบ', 'error'); return; }
+  const r = await api(isEdit ? 'updateProduct' : 'addProduct', p);
+  if (r.status === 'success') {
+    showToast(isEdit ? 'แก้ไขสินค้าแล้ว' : 'เพิ่มสินค้าแล้ว', 'success');
+    closeModal(); loadAll();
+  } else {
+    showToast('Error: ' + r.message, 'error');
+  }
+}
+async function deleteProduct(id) {
+  if (!confirm('ยืนยันลบสินค้า ' + id + '?')) return;
+  const r = await api('deleteProduct', { id });
+  if (r.status === 'success') { showToast('ลบแล้ว', 'success'); loadAll(); }
+}
+
+// Shipping Modal
+function openShipModal(orderId) {
+  openModalWith(`
+    <div class="modal-title">🚚 กรอกเลขพัสดุ</div>
+    <div class="modal-sub">Order: ${orderId}</div>
+    <div class="field">
+      <label>บริษัทขนส่ง</label>
+      <select class="select input" id="s-carrier" style="width:100%">
+        <option value="ไปรษณีย์ไทย">ไปรษณีย์ไทย</option>
+        <option value="Kerry">Kerry Express</option>
+        <option value="Flash">Flash Express</option>
+        <option value="J&T">J&T Express</option>
+        <option value="SCG">SCG Express</option>
+        <option value="Shopee Express">Shopee Express</option>
+        <option value="Lazada">Lazada Express</option>
+      </select>
+    </div>
+    <div class="field"><label>เลขพัสดุ</label><input class="input" id="s-tracking" placeholder="TH123456789"></div>
+    <div class="notify-preview" id="ship-preview">🚚 จัดส่งสินค้าแล้ว!\nออเดอร์: ${orderId}\nขนส่ง: ไปรษณีย์ไทย\nเลขพัสดุ: TH123456789</div>
+    <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="confirmShipping('${orderId}')">
+      📦 ยืนยันจัดส่ง + แจ้งเตือน LINE
+    </button>
+    <button class="btn btn-ghost" style="width:100%;margin-top:6px" onclick="closeModal()">ยกเลิก</button>`);
+  document.getElementById('s-carrier').addEventListener('change', updateShipPreview.bind(null, orderId));
+  document.getElementById('s-tracking').addEventListener('input', updateShipPreview.bind(null, orderId));
+}
+function updateShipPreview(orderId) {
+  const carrier  = document.getElementById('s-carrier').value;
+  const tracking = document.getElementById('s-tracking').value || 'TH123456789';
+  const tmpl     = cfg('tmpl-ship') || `🚚 จัดส่งสินค้าแล้ว!\nออเดอร์: {{orderId}}\nขนส่ง: {{carrier}}\nเลขพัสดุ: {{trackingNo}}\nติดตาม: {{trackingUrl}}`;
+  document.getElementById('ship-preview').textContent = tmpl
+    .replace('{{orderId}}', orderId)
+    .replace('{{carrier}}', carrier)
+    .replace('{{trackingNo}}', tracking)
+    .replace('{{trackingUrl}}', getTrackUrl(carrier, tracking));
+}
+function getTrackUrl(carrier, no) {
+  const map = {
+    'ไปรษณีย์ไทย': `https://track.thailandpost.co.th/?trackNumber=${no}`,
+    'Kerry': `https://th.kerryexpress.com/track/?track=${no}`,
+    'Flash': `https://www.flashexpress.co.th/tracking/?se=${no}`,
+    'J&T': `https://www.jtexpress.co.th/index/query/gzquery.html?bills=${no}`,
+    'SCG': `https://www.scgexpress.co.th/tracking/?barcode=${no}`,
+    'Shopee Express': `https://spx.co.th/?trackingNo=${no}`,
+    'Lazada': `https://www.lazada.co.th/track/?tradeOrderId=${no}`,
+  };
+  return map[carrier] || '#';
+}
+async function confirmShipping(orderId) {
+  const carrier  = document.getElementById('s-carrier').value;
+  const tracking = document.getElementById('s-tracking').value.trim();
+  if (!tracking) { showToast('กรุณากรอกเลขพัสดุ', 'error'); return; }
+  const order = orders.find(o => o.orderId === orderId);
+  const msg = updateShipPreview(orderId) || document.getElementById('ship-preview').textContent;
+  const fullMsg = document.getElementById('ship-preview').textContent;
+  const r = await api('confirmShipping', {
+    orderId, carrier, trackingNo: tracking,
+    lineUserId: order?.lineUserId || '',
+    message: fullMsg
+  });
+  if (r.status === 'success') {
+    showToast('จัดส่งแล้ว + แจ้งเตือน LINE ส่งแล้ว', 'success');
+    closeModal(); loadAll();
+  } else {
+    showToast('Error: ' + r.message, 'error');
+  }
+}
+
+// Notify Modal
+function openNotifyModal(mode, orderId, lineUserId) {
+  const isBroadcast = mode === 'broadcast';
+  openModalWith(`
+    <div class="modal-title">🔔 ${isBroadcast ? 'Broadcast ไปยังทุก User' : 'ส่งแจ้งเตือน LINE'}</div>
+    <div class="modal-sub">${isBroadcast ? 'ส่งหาทุกคนที่มี LINE UID ในระบบ' : `Order: ${orderId} → ${lineUserId?.substring(0,20)}…`}</div>
+    ${!isBroadcast ? '' : `
+    <div class="field">
+      <label>กลุ่มเป้าหมาย</label>
+      <select class="select input" id="notif-target" style="width:100%">
+        <option value="all">ทุกคน</option>
+        <option value="paid">ผู้ที่ชำระแล้ว</option>
+        <option value="pending">รอชำระ</option>
+      </select>
+    </div>`}
+    <div class="field"><label>ข้อความ</label><textarea class="input" id="notif-msg" rows="5" style="resize:vertical" placeholder="พิมพ์ข้อความ..."></textarea></div>
+    <div class="notify-preview" id="notif-preview" style="min-height:60px">ตัวอย่างข้อความจะปรากฏที่นี่...</div>
+    <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="sendNotification('${mode}','${orderId||''}','${lineUserId||''}')">
+      📤 ส่งแจ้งเตือน
+    </button>
+    <button class="btn btn-ghost" style="width:100%;margin-top:6px" onclick="closeModal()">ยกเลิก</button>`);
+  document.getElementById('notif-msg').addEventListener('input', e => {
+    document.getElementById('notif-preview').textContent = e.target.value || 'ตัวอย่างข้อความ...';
+  });
+}
+async function sendNotification(mode, orderId, lineUserId) {
+  const msg    = document.getElementById('notif-msg').value.trim();
+  const target = document.getElementById('notif-target')?.value || 'single';
+  if (!msg) { showToast('กรุณาพิมพ์ข้อความ', 'error'); return; }
+  const r = await api('sendNotification', { mode, orderId, lineUserId, message: msg, target });
+  if (r.status === 'success') {
+    showToast('ส่งแจ้งเตือนแล้ว (' + (r.sent||1) + ' คน)', 'success');
+    closeModal(); loadAll();
+  } else {
+    showToast('Error: ' + r.message, 'error');
+  }
+}
+
+// View Slip
+function viewSlip(orderId) {
+  const order = orders.find(o => o.orderId === orderId);
+  openModalWith(`
+    <div class="modal-title">📎 ตรวจ Slip — ${orderId}</div>
+    <div class="modal-sub">SlipOk API Verification</div>
+    ${order?.slipUrl ? `<img src="${order.slipUrl}" style="width:100%;border-radius:8px;margin-bottom:16px;border:1px solid var(--border)">` : '<div style="color:var(--muted);padding:20px;text-align:center;background:var(--surface2);border-radius:8px;margin-bottom:16px">ยังไม่มี Slip</div>'}
+    <div style="background:var(--surface2);border-radius:8px;padding:12px;margin-bottom:12px;font-size:12px">
+      <div>ยอดออเดอร์: <strong style="font-family:var(--mono)">฿${Number(order?.total||0).toLocaleString()}</strong></div>
+      <div>สถานะ SlipOk: ${order?.slipokResult === 'pass' ? '<span class="badge badge-green">✓ PASS</span>' : order?.slipokResult === 'fail' ? '<span class="badge badge-red">✗ FAIL</span>' : '<span class="badge badge-amber">รอตรวจ</span>'}</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-primary" style="flex:1" onclick="manualApprove('${orderId}')">✅ อนุมัติด้วยตนเอง</button>
+      <button class="btn btn-danger" style="flex:1" onclick="manualReject('${orderId}')">✗ ปฏิเสธ</button>
+    </div>
+    <button class="btn btn-ghost" style="width:100%;margin-top:6px" onclick="closeModal()">ปิด</button>`);
+}
+async function manualApprove(orderId) {
+  const order = orders.find(o => o.orderId === orderId);
+  const tmpl  = cfg('tmpl-paid') || `✅ ยืนยันชำระเงินสำเร็จ!\nออเดอร์: {{orderId}}\nยอด: ฿{{total}}\nเราจะจัดส่งให้เร็วๆ นี้ 🙏`;
+  const msg   = tmpl.replace('{{orderId}}', orderId).replace('{{total}}', Number(order?.total||0).toLocaleString());
+  const r = await api('updateOrderStatus', { orderId, status: 'paid', lineUserId: order?.lineUserId, message: msg });
+  if (r.status === 'success') { showToast('อนุมัติแล้ว', 'success'); closeModal(); loadAll(); }
+  else showToast('Error: ' + r.message, 'error');
+}
+async function manualReject(orderId) {
+  const r = await api('updateOrderStatus', { orderId, status: 'rejected' });
+  if (r.status === 'success') { showToast('ปฏิเสธแล้ว', 'success'); closeModal(); loadAll(); }
+}
+
+// Settings
+function loadSettings() {
+  document.getElementById('s-line-token').value = cfg('line-token');
+  document.getElementById('s-slipok-key').value = cfg('slipok-key');
+  document.getElementById('s-promptpay').value  = cfg('promptpay');
+  document.getElementById('tmpl-paid').value     = cfg('tmpl-paid') || document.getElementById('tmpl-paid').value;
+  document.getElementById('tmpl-ship').value     = cfg('tmpl-ship') || document.getElementById('tmpl-ship').value;
+}
+function saveSettings() {
+  cfg('line-token', document.getElementById('s-line-token').value);
+  cfg('slipok-key', document.getElementById('s-slipok-key').value);
+  cfg('promptpay',  document.getElementById('s-promptpay').value);
+  showToast('บันทึกการตั้งค่าแล้ว', 'success');
+}
+function saveTemplates() {
+  cfg('tmpl-paid', document.getElementById('tmpl-paid').value);
+  cfg('tmpl-ship', document.getElementById('tmpl-ship').value);
+  showToast('บันทึก Template แล้ว', 'success');
+}
+
+// Helpers
+function statusBadge(s) {
+  const m = { pending:'badge-amber', slip_uploaded:'badge-blue', paid:'badge-green', rejected:'badge-red', shipped:'badge-green', shipping:'badge-blue' };
+  const t = { pending:'รอชำระ', slip_uploaded:'รอตรวจ Slip', paid:'ชำระแล้ว', rejected:'ปฏิเสธ', shipped:'จัดส่งแล้ว', shipping:'กำลังจัดส่ง' };
+  return `<span class="badge ${m[s]||'badge-amber'}">${t[s]||s}</span>`;
+}
+function fmtDate(ts) {
+  if (!ts) return '–';
+  const d = new Date(ts);
+  return isNaN(d) ? ts : `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear().toString().slice(2)} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Init
+loadAll();
+</script>
+</body>
+</html>
