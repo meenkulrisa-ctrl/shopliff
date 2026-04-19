@@ -373,13 +373,7 @@ orders = (r.orders || []).map(o => ({
   slipUrl: o["สลิป"] || ''
 }));
 
-products = (r.products || []).map(p => ({
-  id: p["Product ID"] || p["รหัสสินค้า"],
-  name: p["ชื่อสินค้า"],
-  price: Number(p["ราคา"] || 0),
-  stock: Number(p["สต็อก"] || 0),
-  emoji: p["อีโมจิ"] || '📦'
-}));
+products = r.products || [];
 
 notifications = (r.notifications || []).map(n => ({
   orderId: n["Order ID"] || '',
