@@ -359,10 +359,44 @@ async function loadAll() {
   try {
     const r = await api('getOrders');
 
-    orders = r.orders || [];
-    products = r.products || [];
-    notifications = r.notifications || [];
-    slipLogs = r.slipLogs || [];
+orders = (r.orders || []).map(o => ({
+  orderId: o["Order ID"],
+  name: o["ชื่อ"],
+  phone: o["เบอร์"],
+  total: Number(o["ยอด"] || 0),
+  status: o["สถานะ"] || 'pending',
+  timestamp: o["เวลา"] || '',
+  lineUserId: o["User ID"] || '',
+  address: o["ที่อยู่"] || '',
+  trackingNo: o["เลขพัสดุ"] || '',
+  carrier: o["ขนส่ง"] || '',
+  slipUrl: o["สลิป"] || ''
+}));
+
+products = (r.products || []).map(p => ({
+  id: p["Product ID"] || p["รหัสสินค้า"],
+  name: p["ชื่อสินค้า"],
+  price: Number(p["ราคา"] || 0),
+  stock: Number(p["สต็อก"] || 0),
+  emoji: p["อีโมจิ"] || '📦'
+}));
+
+notifications = (r.notifications || []).map(n => ({
+  orderId: n["Order ID"] || '',
+  type: n["ประเภท"] || n["Type"] || 'Notification',
+  message: n["ข้อความ"] || '',
+  timestamp: n["เวลา"] || '',
+  success: n["สถานะ"] === 'success' || n["สำเร็จ"] === true
+}));
+
+slipLogs = (r.slipLogs || []).map(s => ({
+  orderId: s["Order ID"],
+  timestamp: s["เวลา"] || '',
+  amount: Number(s["ยอด"] || 0),
+  sender: s["ผู้โอน"] || '',
+  verified: s["ผล"] === 'PASS' || s["verified"] === true,
+  ref: s["Ref"] || ''
+}));
 
     updateStats();
     renderRecentOrders();
