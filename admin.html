@@ -306,7 +306,14 @@ tr:hover td{background:var(--surface2)}
 <script>
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzGecIT7vVSFFKsSq4uaLaWK6J7zPN9ivcA3AWgqZJG3EG8xECyuP32EClSlEj4s0_A/exec';
 const ADMIN_KEY  = 'shopeasy-admin-2024'; // ← เปลี่ยนเป็น key ของคุณ
-
+  
+function nowTH() {
+  return new Date().toLocaleString('sv-SE', {
+    timeZone: 'Asia/Bangkok',
+    hour12: false
+  });
+}
+  
 // ===== Local Storage Config =====
 function cfg(key, val) {
   if (val !== undefined) localStorage.setItem('sa_' + key, val);
@@ -377,7 +384,7 @@ function refreshData() { loadAll(); showToast('รีเฟรชแล้ว', 
 
 // ===== Stats =====
 function updateStats() {
-  const today = new Date().toISOString().split('T')[0];
+  const today = nowTH().split(' ')[0];
   const todayOrders = orders.filter(o => o.timestamp && o.timestamp.startsWith(today));
   document.getElementById('stat-today').textContent  = todayOrders.length;
   document.getElementById('stat-pending').textContent = orders.filter(o => o.status === 'pending').length;
@@ -705,7 +712,7 @@ async function sendNotification(mode, orderId, lineUserId) {
   const msg    = document.getElementById('notif-msg').value.trim();
   const target = document.getElementById('notif-target')?.value || 'single';
   if (!msg) { showToast('กรุณาพิมพ์ข้อความ', 'error'); return; }
-  const r = await api('sendNotification', { mode, orderId, lineUserId, message: msg, target });
+  const r = await api('sendNotification', { mode, orderId, lineUserId, message: msg, target, timestamp: nowTH() });
   if (r.status === 'success') {
     showToast('ส่งแจ้งเตือนแล้ว (' + (r.sent||1) + ' คน)', 'success');
     closeModal(); loadAll();
@@ -772,8 +779,9 @@ function statusBadge(s) {
 }
 function fmtDate(ts) {
   if (!ts) return '–';
-  const d = new Date(ts);
-  return isNaN(d) ? ts : `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear().toString().slice(2)} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
+  return new Date(ts).toLocaleString('th-TH', {
+    timeZone: 'Asia/Bangkok'
+  });
 }
 function showToast(msg, type='success') {
   const t = document.getElementById('toast');
