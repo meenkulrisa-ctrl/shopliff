@@ -123,7 +123,7 @@
 ============================================================ -->
 <script>
   const LIFF_ID      = '2009816303-JA70bVo1';
-  const SCRIPT_URL   = 'https://script.google.com/macros/s/AKfycbztpj2ItaFOZgkseRARjEk6QARXfJYXb61qquKK_0l-xyiwAjKZ3CWPGOgFqlj7QkYf/exec';
+  const SCRIPT_URL   = 'https://script.google.com/macros/s/AKfycbwZfD9QSRMeqBrdZ1_ZS8wuQ27MAI_iOB6hIyLkXBMUYaXG4QBPXjtrNMbyUPN1f-hd/exec';
   const PROMPTPAY_ID = '0832707590';
   // SlipOk API - ลูกค้าจะส่ง slip ไปที่ Apps Script ซึ่งจะเรียก SlipOk โดยตรง
 </script>
@@ -131,7 +131,8 @@
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script>
 
-const PRODUCTS = [
+// สินค้า fallback (ใช้เมื่อ Sheets ยังไม่มีข้อมูลหรือโหลดไม่ได้)
+const PRODUCTS_FALLBACK = [
   {id:'P001', name:'เสื้อยืด Basic',   price:299,  emoji:'👕', stock:50},
   {id:'P002', name:'กางเกงยีนส์',      price:899,  emoji:'👖', stock:20},
   {id:'P003', name:'รองเท้าผ้าใบ',     price:1290, emoji:'👟', stock:15},
@@ -139,6 +140,7 @@ const PRODUCTS = [
   {id:'P005', name:'หมวกแก็ป',         price:250,  emoji:'🧢', stock:40},
   {id:'P006', name:'แว่นกันแดด',       price:450,  emoji:'🕶️', stock:25}
 ];
+let PRODUCTS = [];
 
 let cart = {};
 let lineUser = { userId: null, displayName: 'ไม่ทราบชื่อ', pictureUrl: null };
@@ -173,15 +175,53 @@ async function initLiff() {
 }
 
 /* ===== Products ===== */
+async function loadProducts() {
+  const grid = document.getElementById('grid');
+  // แสดง skeleton ก่อน
+  grid.innerHTML = Array(4).fill(0).map(() => `
+    <div class="product-card" style="opacity:0.5">
+      <div class="product-img" style="background:#E8EDE8">⏳</div>
+      <div class="product-info">
+        <div style="height:10px;background:#E8EDE8;border-radius:4px;margin-bottom:6px"></div>
+        <div style="height:10px;background:#E8EDE8;border-radius:4px;width:60%"></div>
+      </div>
+    </div>`).join('');
+
+  try {
+    const res  = await fetch(`${SCRIPT_URL}?action=getProducts`);
+    const data = await res.json();
+    if (data.status === 'success' && Array.isArray(data.products) && data.products.length > 0) {
+      // กรองเฉพาะสินค้าที่ active และ stock > 0
+      PRODUCTS = data.products
+        .filter(p => p.active !== false && p.active !== 'false' && p.active !== 'FALSE')
+        .map(p => ({ ...p, price: Number(p.price), stock: Number(p.stock) }));
+    } else {
+      // ถ้า sheet ว่าง ใช้ fallback
+      PRODUCTS = PRODUCTS_FALLBACK;
+    }
+  } catch (err) {
+    console.warn('โหลดสินค้าจาก Sheet ไม่ได้ ใช้ข้อมูลสำรอง:', err);
+    PRODUCTS = PRODUCTS_FALLBACK;
+  }
+  renderProducts();
+}
+
 function renderProducts() {
-  document.getElementById('grid').innerHTML = PRODUCTS.map(p => `
+  const grid = document.getElementById('grid');
+  if (!PRODUCTS.length) {
+    grid.innerHTML = '<div style="padding:24px;text-align:center;color:var(--muted);grid-column:1/-1">ยังไม่มีสินค้า</div>';
+    return;
+  }
+  grid.innerHTML = PRODUCTS.map(p => `
     <div class="product-card">
-      <div class="product-img">${p.emoji}</div>
+      <div class="product-img">${p.emoji || '🛍️'}</div>
       <div class="product-info">
         <div class="product-name">${p.name}</div>
-        <div class="product-price">฿${p.price.toLocaleString()}</div>
-        <div class="product-stock">เหลือ ${p.stock} ชิ้น</div>
-        <button class="btn-add" onclick="addCart('${p.id}')">+ ใส่ตะกร้า</button>
+        <div class="product-price">฿${Number(p.price).toLocaleString()}</div>
+        <div class="product-stock">${Number(p.stock) > 0 ? `เหลือ ${p.stock} ชิ้น` : '<span style="color:#E24B4A">สินค้าหมด</span>'}</div>
+        <button class="btn-add" onclick="addCart('${p.id}')" ${Number(p.stock) <= 0 ? 'disabled style="background:#B4B2A9;cursor:not-allowed"' : ''}>
+          + ใส่ตะกร้า
+        </button>
       </div>
     </div>`).join('');
 }
@@ -547,7 +587,7 @@ function showToast(msg) {
 }
 
 /* ===== Start ===== */
-renderProducts();
+loadProducts();  // ดึงสินค้าจาก Google Sheets
 initLiff();
 </script>
 </body>
