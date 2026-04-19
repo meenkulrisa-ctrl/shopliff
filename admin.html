@@ -672,7 +672,8 @@ async function confirmShipping(orderId) {
     carrier,
     trackingNo: tracking,
     lineUserId: order.lineUserId || '',
-    message: fullMsg
+    message: fullMsg,
+    timestamp: nowTH()
   });
 
   if (r.status === 'success') {
@@ -742,7 +743,7 @@ async function manualApprove(orderId) {
   const order = orders.find(o => o.orderId === orderId);
   const tmpl  = cfg('tmpl-paid') || `✅ ยืนยันชำระเงินสำเร็จ!\nออเดอร์: {{orderId}}\nยอด: ฿{{total}}\nเราจะจัดส่งให้เร็วๆ นี้ 🙏`;
   const msg   = tmpl.replace('{{orderId}}', orderId).replace('{{total}}', Number(order?.total||0).toLocaleString());
-  const r = await api('updateOrderStatus', { orderId, status: 'paid', lineUserId: order?.lineUserId, message: msg });
+  const r = await api('updateOrderStatus', { orderId, status: 'paid', lineUserId: order?.lineUserId, message: msg, timestamp: nowTH() });
   if (r.status === 'success') { showToast('อนุมัติแล้ว', 'success'); closeModal(); loadAll(); }
   else showToast('Error: ' + r.message, 'error');
 }
