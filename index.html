@@ -313,7 +313,15 @@ async function submitOrder() {
       const p = PRODUCTS.find(x => x.id === id);
       return { id, name: p.name, qty: q, price: p.price, subtotal: p.price * q };
     })),
-    total, timestamp: new Date().toISOString()
+    total, timestamp: new Date().toLocaleString('th-TH', {
+  timeZone: 'Asia/Bangkok',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit'
+})
   };
   try {
     const query = new URLSearchParams(payload).toString();
