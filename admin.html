@@ -128,16 +128,16 @@ tr:hover td{background:var(--surface2)}
 <div class="layout">
   <div class="sidebar">
     <div class="nav-label">Overview</div>
-    <div class="nav-item active" onclick="showPage('dashboard')"><span class="icon">◈</span> Dashboard</div>
-    <div class="nav-item" onclick="showPage('orders')"><span class="icon">📦</span> Orders</div>
-    <div class="nav-item" onclick="showPage('shipping')"><span class="icon">🚚</span> Shipping</div>
+    <div class="nav-item active" data-page="dashboard" onclick="showPage('dashboard')"><span class="icon">◈</span> Dashboard</div>
+    <div class="nav-item" data-page="orders" onclick="showPage('orders')"><span class="icon">📦</span> Orders</div>
+    <div class="nav-item" data-page="shipping" onclick="showPage('shipping')"><span class="icon">🚚</span> Shipping</div>
     <div class="nav-label">Catalog</div>
-    <div class="nav-item" onclick="showPage('products')"><span class="icon">🏷</span> Products</div>
+    <div class="nav-item" data-page="products" onclick="showPage('products')"><span class="icon">🏷</span> Products</div>
     <div class="nav-label">LINE</div>
-    <div class="nav-item" onclick="showPage('notifications')"><span class="icon">🔔</span> Notifications</div>
-    <div class="nav-item" onclick="showPage('slipok')"><span class="icon">✅</span> SlipOk Logs</div>
+    <div class="nav-item" data-page="notifications" onclick="showPage('notifications')"><span class="icon">🔔</span> Notifications</div>
+   <div class="nav-item" data-page="slipok" onclick="showPage('slipok')"><span class="icon">✅</span> SlipOk Logs</div>
     <div class="nav-label">Settings</div>
-    <div class="nav-item" onclick="showPage('settings')"><span class="icon">⚙</span> Settings</div>
+    <div class="nav-item" data-page="settings" onclick="showPage('settings')"><span class="icon">⚙</span> Settings</div>
   </div>
 
   <div class="main">
@@ -321,10 +321,13 @@ let orderFilter = 'all', orderSearch = '';
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
   document.getElementById('page-' + id).classList.add('active');
+
   document.querySelectorAll('.nav-item').forEach(n => {
-    if (n.textContent.trim().toLowerCase().includes(id.substring(0,4))) n.classList.add('active');
+    if (n.dataset.page === id) n.classList.add('active');
   });
+
   if (id === 'orders') renderOrders();
   if (id === 'shipping') renderShipping();
   if (id === 'products') renderProducts();
@@ -335,22 +338,36 @@ function showPage(id) {
 
 // ===== API Call to Apps Script =====
 async function api(action, params = {}) {
-  const p = new URLSearchParams({ action, adminKey: ADMIN_KEY, ...params });
-  const r = await fetch(`${SCRIPT_URL}?${p}`);
-  return r.json();
+  try {
+    const p = new URLSearchParams({ action, adminKey: ADMIN_KEY, ...params });
+    const r = await fetch(`${SCRIPT_URL}?${p}`);
+    return await r.json();
+  } catch (e) {
+    return { status: 'error', message: e.message };
+  }
 }
 
 // ===== Load Data =====
 async function loadAll() {
   try {
     const r = await api('getOrders');
-    if (r.orders) orders = r.orders;
-    if (r.products) products = r.products;
-    if (r.notifications) notifications = r.notifications;
-    if (r.slipLogs) slipLogs = r.slipLogs;
+
+    orders = r.orders || [];
+    products = r.products || [];
+    notifications = r.notifications || [];
+    slipLogs = r.slipLogs || [];
+
     updateStats();
     renderRecentOrders();
     renderRecentNotifs();
+
+    // ✅ เพิ่มตรงนี้
+    renderOrders();
+    renderProducts();
+    renderShipping();
+    renderNotifications();
+    renderSlipokLogs();
+
   } catch(e) {
     showToast('โหลดข้อมูลไม่ได้: ' + e.message, 'error');
   }
@@ -401,9 +418,11 @@ function renderOrders() {
       <td style="font-size:11px;color:var(--muted)">${fmtDate(o.timestamp)}</td>
       <td>
         <div class="action-row">
-          ${o.status==='pending'||o.status==='slip_uploaded' ? `<button class="btn btn-sm btn-ghost" onclick="viewSlip('${o.orderId}')">📎 Slip</button>` : ''}
-          ${o.status==='paid'?`<button class="btn btn-sm btn-blue" onclick="openShipModal('${o.orderId}')">🚚 ส่ง</button>`:''}
-          <button class="btn btn-sm btn-ghost" onclick="openNotifyModal('single','${o.orderId}','${o.lineUserId}')">🔔</button>
+${(o.status==='pending'||o.status==='slip_uploaded') && o.slipUrl
+  ? `<button class="btn btn-sm btn-ghost" onclick="viewSlip('${o.orderId}')">📎 Slip</button>`
+  : ''
+}
+   <button class="btn btn-sm btn-ghost" onclick="openNotifyModal('single','${o.orderId}','${o.lineUserId}')">🔔</button>
         </div>
       </td>
     </tr>`).join('');
@@ -444,10 +463,19 @@ function renderProducts() {
       <div style="font-family:var(--mono);color:var(--green);margin-bottom:2px">฿${Number(p.price||0).toLocaleString()}</div>
       <div style="font-size:11px;color:var(--muted)">stock: ${p.stock}</div>
       <div style="display:flex;gap:6px;margin-top:10px">
-        <button class="btn btn-sm btn-ghost" style="flex:1" onclick="openProductModal(${JSON.stringify(p).replace(/"/g,'&quot;')})">แก้ไข</button>
+        <button class="btn btn-sm btn-ghost" style="flex:1" onclick="openProductModalById('${p.id}')">แก้ไข</button>
         <button class="btn btn-sm btn-danger" onclick="deleteProduct('${p.id}')">ลบ</button>
       </div>
     </div>`).join('');
+}
+
+  function openProductModalById(id) {
+  const p = products.find(x => x.id === id);
+  if (!p) {
+    showToast('ไม่พบสินค้า', 'error');
+    return;
+  }
+  openProductModal(p);
 }
 
 // ===== Shipping =====
@@ -539,13 +567,13 @@ function selectEmoji(el, e) {
   document.getElementById('p-emoji').value = e;
 }
 async function saveProduct(isEdit) {
-  const p = {
-    id: document.getElementById('p-id').value.trim(),
-    name: document.getElementById('p-name').value.trim(),
-    price: Number(document.getElementById('p-price').value),
-    stock: Number(document.getElementById('p-stock').value),
-    emoji: document.getElementById('p-emoji').value
-  };
+const p = {
+  id: String(document.getElementById('p-id').value.trim()), // ✅ FIX
+  name: String(document.getElementById('p-name').value.trim()),
+  price: Number(document.getElementById('p-price').value),
+  stock: Number(document.getElementById('p-stock').value),
+  emoji: document.getElementById('p-emoji').value
+};
   if (!p.id || !p.name || !p.price) { showToast('กรุณากรอกข้อมูลให้ครบ', 'error'); return; }
   const r = await api(isEdit ? 'updateProduct' : 'addProduct', p);
   if (r.status === 'success') {
@@ -591,11 +619,16 @@ function updateShipPreview(orderId) {
   const carrier  = document.getElementById('s-carrier').value;
   const tracking = document.getElementById('s-tracking').value || 'TH123456789';
   const tmpl     = cfg('tmpl-ship') || `🚚 จัดส่งสินค้าแล้ว!\nออเดอร์: {{orderId}}\nขนส่ง: {{carrier}}\nเลขพัสดุ: {{trackingNo}}\nติดตาม: {{trackingUrl}}`;
-  document.getElementById('ship-preview').textContent = tmpl
+
+  const text = tmpl
     .replace('{{orderId}}', orderId)
     .replace('{{carrier}}', carrier)
     .replace('{{trackingNo}}', tracking)
     .replace('{{trackingUrl}}', getTrackUrl(carrier, tracking));
+
+  document.getElementById('ship-preview').textContent = text;
+
+  return text; // ✅ FIX
 }
 function getTrackUrl(carrier, no) {
   const map = {
@@ -612,23 +645,37 @@ function getTrackUrl(carrier, no) {
 async function confirmShipping(orderId) {
   const carrier  = document.getElementById('s-carrier').value;
   const tracking = document.getElementById('s-tracking').value.trim();
-  if (!tracking) { showToast('กรุณากรอกเลขพัสดุ', 'error'); return; }
+
+  if (!tracking) {
+    showToast('กรุณากรอกเลขพัสดุ', 'error');
+    return;
+  }
+
   const order = orders.find(o => o.orderId === orderId);
-  const msg = updateShipPreview(orderId) || document.getElementById('ship-preview').textContent;
-  const fullMsg = document.getElementById('ship-preview').textContent;
+
+  if (!order) {
+    showToast('ไม่พบออเดอร์', 'error');
+    return;
+  }
+
+  const fullMsg = updateShipPreview(orderId);
+
   const r = await api('confirmShipping', {
-    orderId, carrier, trackingNo: tracking,
-    lineUserId: order?.lineUserId || '',
+    orderId,
+    carrier,
+    trackingNo: tracking,
+    lineUserId: order.lineUserId || '',
     message: fullMsg
   });
+
   if (r.status === 'success') {
     showToast('จัดส่งแล้ว + แจ้งเตือน LINE ส่งแล้ว', 'success');
-    closeModal(); loadAll();
+    closeModal();
+    loadAll();
   } else {
     showToast('Error: ' + r.message, 'error');
   }
 }
-
 // Notify Modal
 function openNotifyModal(mode, orderId, lineUserId) {
   const isBroadcast = mode === 'broadcast';
